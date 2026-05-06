@@ -15,35 +15,31 @@ import com.football.management.model.TaiKhoan;
 public class DangNhapPage {
 
     public static Scene createScene() {
-        Label lblLogo = new Label("Quan ly san bong");
+        Label lblLogo = new Label("Quản lý sân bóng");
         lblLogo.getStyleClass().add("app-logo");
 
-        Label lblTieuDe = new Label("Dang nhap");
+        Label lblTieuDe = new Label("Đăng nhập");
         lblTieuDe.getStyleClass().add("login-title");
 
-        Label lblMoTa = new Label("Dang nhap de quan ly san, lich dat va thanh toan");
-        lblMoTa.getStyleClass().add("login-subtitle");
-        lblMoTa.setWrapText(true);
-
         TextField txtTenDangNhap = new TextField();
-        txtTenDangNhap.setPromptText("Ten dang nhap");
+        txtTenDangNhap.setPromptText("Tên đăng nhập");
         txtTenDangNhap.getStyleClass().add("input-field");
 
         PasswordField txtMatKhau = new PasswordField();
-        txtMatKhau.setPromptText("Mat khau");
+        txtMatKhau.setPromptText("Mật khẩu");
         txtMatKhau.getStyleClass().add("input-field");
 
         ComboBox<String> cbVaiTro = new ComboBox<>();
         cbVaiTro.getItems().addAll("CHU_SAN", "NHAN_VIEN", "KHACH_HANG");
-        cbVaiTro.setPromptText("Chon vai tro");
+        cbVaiTro.setPromptText("Chọn vai trò");
         cbVaiTro.getStyleClass().add("input-field");
         cbVaiTro.setMaxWidth(Double.MAX_VALUE);
 
-        Button btnDangNhap = new Button("Dang nhap");
+        Button btnDangNhap = new Button("Đăng nhập");
         btnDangNhap.getStyleClass().add("primary-button");
         btnDangNhap.setMaxWidth(Double.MAX_VALUE);
 
-        Hyperlink linkDangKy = new Hyperlink("Chua co tai khoan? Dang ky");
+        Hyperlink linkDangKy = new Hyperlink("Đăng ký");
         linkDangKy.getStyleClass().add("text-link");
 
         linkDangKy.setOnAction(e ->
@@ -86,7 +82,7 @@ public class DangNhapPage {
             lblThongBao.setText("");
 
             if (tenDangNhap.isEmpty() || matKhau.isEmpty() || vaiTro == null) {
-                lblThongBao.setText("Vui long nhap day du thong tin");
+                lblThongBao.setText("Vui lòng nhập đầy đủ thông tin");
                 return;
             }
 
@@ -94,7 +90,7 @@ public class DangNhapPage {
             TaiKhoan taiKhoan = taiKhoanDAO.dangNhap(tenDangNhap, matKhau);
 
             if (taiKhoan == null) {
-                lblThongBao.setText("Sai ten dang nhap hoac mat khau");
+                lblThongBao.setText("Sai tên đăng nhập hoặc mật khẩu");
                 return;
             }
 
@@ -113,7 +109,7 @@ public class DangNhapPage {
                 AppState.setVaiTro("KHACH_HANG");
                 AppNavigator.goTo(KhachHangHomePage.createScene(), "Khach hang");
             } else {
-                lblThongBao.setText("Vai tro chon khong khop voi tai khoan");
+                lblThongBao.setText("Vai trò chọn không khớp với tài khoản");
             }
         });
 
@@ -121,7 +117,6 @@ public class DangNhapPage {
                 16,
                 lblLogo,
                 lblTieuDe,
-                lblMoTa,
                 txtTenDangNhap,
                 txtMatKhau,
                 cbVaiTro,

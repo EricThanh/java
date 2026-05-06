@@ -15,26 +15,25 @@ import java.time.LocalDateTime;
 public class DangKyPage {
 
     public static Scene createScene() {
-        Label lblLogo = new Label("Quan ly san bong");
+        Label lblLogo = new Label("Quản lý sân bóng");
         lblLogo.getStyleClass().add("app-logo");
 
-        Label lblTieuDe = new Label("Dang ky tai khoan khach hang");
+        Label lblTieuDe = new Label("Đăng ký tài khoản ");
         lblTieuDe.getStyleClass().add("login-title");
+        lblTieuDe.setWrapText(true);
+        lblTieuDe.setMaxWidth(360);
 
-        Label lblMoTa = new Label("Tao tai khoan de dat san, thanh toan va theo doi lich su");
-        lblMoTa.getStyleClass().add("login-subtitle");
-        lblMoTa.setWrapText(true);
 
         TextField txtHoTen = new TextField();
-        txtHoTen.setPromptText("Ho ten");
+        txtHoTen.setPromptText("Họ tên");
         txtHoTen.getStyleClass().add("input-field");
 
         TextField txtTenDangNhap = new TextField();
-        txtTenDangNhap.setPromptText("Ten dang nhap");
+        txtTenDangNhap.setPromptText("Tên đăng nhập");
         txtTenDangNhap.getStyleClass().add("input-field");
 
         PasswordField txtMatKhau = new PasswordField();
-        txtMatKhau.setPromptText("Mat khau");
+        txtMatKhau.setPromptText("Mật khẩu");
         txtMatKhau.getStyleClass().add("input-field");
 
         TextField txtEmail = new TextField();
@@ -42,24 +41,24 @@ public class DangKyPage {
         txtEmail.getStyleClass().add("input-field");
 
         TextField txtSoDienThoai = new TextField();
-        txtSoDienThoai.setPromptText("So dien thoai");
+        txtSoDienThoai.setPromptText("Số điện thoại");
         txtSoDienThoai.getStyleClass().add("input-field");
 
         TextField txtDiaChi = new TextField();
-        txtDiaChi.setPromptText("Dia chi");
+        txtDiaChi.setPromptText("Địa chỉ");
         txtDiaChi.getStyleClass().add("input-field");
 
         ComboBox<String> cbGioiTinh = new ComboBox<>();
         cbGioiTinh.getItems().addAll("NAM", "NU", "KHAC");
-        cbGioiTinh.setPromptText("Gioi tinh");
+        cbGioiTinh.setPromptText("Giới tính");
         cbGioiTinh.getStyleClass().add("input-field");
         cbGioiTinh.setMaxWidth(Double.MAX_VALUE);
 
-        Button btnDangKy = new Button("Dang ky");
+        Button btnDangKy = new Button("Đăng ký");
         btnDangKy.getStyleClass().add("primary-button");
         btnDangKy.setMaxWidth(Double.MAX_VALUE);
 
-        Hyperlink linkDangNhap = new Hyperlink("Da co tai khoan? Dang nhap");
+        Hyperlink linkDangNhap = new Hyperlink("Đã có tài khoản? Đăng nhập");
         linkDangNhap.getStyleClass().add("text-link");
 
         Label lblThongBao = new Label();
@@ -82,7 +81,7 @@ public class DangKyPage {
 
             if (hoTen.isEmpty() || tenDangNhap.isEmpty() || matKhau.isEmpty()
                     || email.isEmpty() || soDienThoai.isEmpty() || gioiTinh == null) {
-                lblThongBao.setText("Vui long nhap day du thong tin");
+                lblThongBao.setText("Vui lòng nhập đầy đủ thông tin");
                 return;
             }
 
@@ -90,7 +89,7 @@ public class DangKyPage {
             KhachHangDAO khachHangDAO = new KhachHangDAO();
 
             if (taiKhoanDAO.tonTaiTenDangNhap(tenDangNhap)) {
-                lblThongBao.setText("Ten dang nhap da ton tai");
+                lblThongBao.setText("Tên đăng nhập đã tồn tại");
                 return;
             }
 
@@ -130,7 +129,7 @@ public class DangKyPage {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Thong bao");
             alert.setHeaderText(null);
-            alert.setContentText("Dang ky thanh cong. Moi ban dang nhap.");
+            alert.setContentText("Đăng ký thành công");
             alert.showAndWait();
 
             AppNavigator.goTo(DangNhapPage.createScene(), "Dang nhap");
@@ -140,7 +139,6 @@ public class DangKyPage {
                 14,
                 lblLogo,
                 lblTieuDe,
-                lblMoTa,
                 txtHoTen,
                 txtTenDangNhap,
                 txtMatKhau,
