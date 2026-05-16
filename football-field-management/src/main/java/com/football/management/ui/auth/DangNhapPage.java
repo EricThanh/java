@@ -43,7 +43,13 @@ public class DangNhapPage {
         linkDangKy.getStyleClass().add("text-link");
 
         linkDangKy.setOnAction(e ->
-                AppNavigator.goTo(DangKyPage.createScene(), "Dang ky")
+                AppNavigator.goTo(DangKyPage.createScene(), "Đăng ký")
+        );
+        Hyperlink linkQuenMatKhau = new Hyperlink("Quên mật khẩu?");
+        linkQuenMatKhau.getStyleClass().add("text-link");
+
+        linkQuenMatKhau.setOnAction(e ->
+                AppNavigator.goTo(QuenMatKhauPage.createScene(), "Quên mật khẩu")
         );
 
         Label lblThongBao = new Label();
@@ -101,13 +107,13 @@ public class DangNhapPage {
 
             if (maVaiTro == 1 && "CHU_SAN".equals(vaiTroTuChon)) {
                 AppState.setVaiTro("CHU_SAN");
-                AppNavigator.goTo(ChuSanDashboardPage.createScene(), "Chu san");
+                AppNavigator.goTo(ChuSanDashboardPage.createScene(), "Chủ sân");
             } else if (maVaiTro == 2 && "NHAN_VIEN".equals(vaiTroTuChon)) {
                 AppState.setVaiTro("NHAN_VIEN");
-                AppNavigator.goTo(NhanVienDashboardPage.createScene(), "Nhan vien");
+                AppNavigator.goTo(NhanVienDashboardPage.createScene(), "Nhân viên");
             } else if (maVaiTro == 3 && "KHACH_HANG".equals(vaiTroTuChon)) {
                 AppState.setVaiTro("KHACH_HANG");
-                AppNavigator.goTo(KhachHangHomePage.createScene(), "Khach hang");
+                AppNavigator.goTo(KhachHangHomePage.createScene(), "Khách hàng");
             } else {
                 lblThongBao.setText("Vai trò chọn không khớp với tài khoản");
             }
@@ -121,6 +127,7 @@ public class DangNhapPage {
                 txtMatKhau,
                 cbVaiTro,
                 btnDangNhap,
+                linkQuenMatKhau,
                 linkDangKy,
                 lblThongBao
         );

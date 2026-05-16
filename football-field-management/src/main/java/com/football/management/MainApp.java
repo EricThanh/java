@@ -78,7 +78,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) {
         AppNavigator.setMainStage(stage);
-        AppNavigator.goTo(DangNhapPage.createScene(), "Dang nhap");
+        AppNavigator.goTo(DangNhapPage.createScene(), "Đăng nhập");
     }
 
     public static void main(String[] args) {
