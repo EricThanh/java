@@ -1,64 +1,131 @@
 package com.football.management.ui.NhanVien;
 
+import com.football.management.dao.ThongKeNhanVienDAO;
+
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
+import java.sql.SQLException;
+
 public class TongQuanNhanVienPage {
 
+    private static final ThongKeNhanVienDAO thongKeDAO = new ThongKeNhanVienDAO();
+
     public static Node createView() {
-        VBox root = new VBox(20);
-        root.setPadding(new Insets(24));
-        root.getStyleClass().add("content-root");
+        VBox khungChinh = new VBox(18);
+        khungChinh.setPadding(new Insets(24));
+        khungChinh.getStyleClass().add("content-root");
 
-        Label lblTitle = new Label("Tong quan nhan vien");
-        lblTitle.getStyleClass().add("page-title");
+        Label tieuDe = new Label("Tổng quan nhân viên");
+        tieuDe.getStyleClass().add("page-title");
 
-        Label lblSubtitle = new Label("Theo doi lich san, don dat va thanh toan trong ngay");
-        lblSubtitle.getStyleClass().add("section-subtitle");
+        Label moTa = new Label("Theo dõi nhanh tình hình đặt sân, thanh toán, khách hàng và trạng thái sân");
+        moTa.getStyleClass().add("section-subtitle");
 
-        GridPane grid = new GridPane();
-        grid.setHgap(20);
-        grid.setVgap(20);
+        GridPane luoiThongKe = new GridPane();
+        luoiThongKe.setHgap(16);
+        luoiThongKe.setVgap(16);
 
-        grid.add(createStatCard("Don dat hom nay", "18"), 0, 0);
-        grid.add(createStatCard("Khach cho check-in", "5"), 1, 0);
-        grid.add(createStatCard("Don chua thanh toan", "7"), 0, 1);
-        grid.add(createStatCard("San dang su dung", "4"), 1, 1);
+        int donHomNay = 0;
+        int donDangSuDung = 0;
+        int donCanThanhToan = 0;
+        int khachHangHoatDong = 0;
+        int sanDangSuDung = 0;
+        int tongSan = 0;
 
-        VBox section = new VBox(10);
-        section.getStyleClass().add("card");
+        try {
+            donHomNay = thongKeDAO.demDonDatSanHomNay();
+            donDangSuDung = thongKeDAO.demDonDangSuDung();
+            donCanThanhToan = thongKeDAO.demDonCanThanhToan();
+            khachHangHoatDong = thongKeDAO.demKhachHangHoatDong();
+            sanDangSuDung = thongKeDAO.demSanDangSuDung();
+            tongSan = thongKeDAO.demTongSan();
 
-        Label lblSectionTitle = new Label("Cong viec can xu ly");
-        lblSectionTitle.getStyleClass().add("section-title");
+        } catch (SQLException e) {
+            e.printStackTrace();
 
-        Label lblContent = new Label("""
-                - Xac nhan khach den
-                - Cap nhat trang thai san
-                - Ghi nhan thanh toan
-                - Ho tro dat san tai quay
-                """);
-        lblContent.getStyleClass().add("section-subtitle");
+            Label loi = new Label("Không thể tải số liệu tổng quan từ cơ sở dữ liệu.");
+            loi.getStyleClass().add("section-subtitle");
 
-        section.getChildren().addAll(lblSectionTitle, lblContent);
+            khungChinh.getChildren().addAll(tieuDe, moTa, loi);
+            return khungChinh;
+        }
 
-        root.getChildren().addAll(lblTitle, lblSubtitle, grid, section);
-        return root;
+        luoiThongKe.add(
+                taoTheThongKe("Đơn đặt sân hôm nay", String.valueOf(donHomNay), "Đơn chưa hủy trong ngày hiện tại"),
+                0,
+                0
+        );
+
+        luoiThongKe.add(
+                taoTheThongKe("Đơn đang sử dụng", String.valueOf(donDangSuDung), "Các đơn đã check-in"),
+                1,
+                0
+        );
+
+        luoiThongKe.add(
+                taoTheThongKe("Đơn cần thanh toán", String.valueOf(donCanThanhToan), "Đơn chưa thanh toán"),
+                2,
+                0
+        );
+
+        luoiThongKe.add(
+                taoTheThongKe("Khách hàng hoạt động", String.valueOf(khachHangHoatDong), "Khách hàng còn hoạt động"),
+                0,
+                1
+        );
+
+        luoiThongKe.add(
+                taoTheThongKe("Sân đang sử dụng", sanDangSuDung + " / " + tongSan, "Số sân đang có khách sử dụng"),
+                1,
+                1
+        );
+
+        luoiThongKe.add(
+                taoTheThongKe("Tổng số sân", String.valueOf(tongSan), "Tất cả sân trong hệ thống"),
+                2,
+                1
+        );
+
+        Label goiY = new Label(
+                "Gợi ý: Nhân viên nên kiểm tra lịch sân, xử lý đơn đang sử dụng và xác nhận thanh toán cho các đơn còn tồn."
+        );
+        goiY.getStyleClass().add("section-subtitle");
+        goiY.setWrapText(true);
+
+        khungChinh.getChildren().addAll(
+                tieuDe,
+                moTa,
+                luoiThongKe,
+                goiY
+        );
+
+        return khungChinh;
     }
 
-    private static VBox createStatCard(String title, String value) {
-        VBox card = new VBox(10);
-        card.getStyleClass().add("stat-card");
+    private static VBox taoTheThongKe(String tieuDe, String giaTri, String moTa) {
+        VBox the = new VBox(8);
+        the.setPadding(new Insets(18));
+        the.setPrefWidth(250);
+        the.setMinHeight(130);
+        the.getStyleClass().add("booking-stat-card");
 
-        Label lblTitle = new Label(title);
-        lblTitle.getStyleClass().add("stat-label");
+        Label lblTieuDe = new Label(tieuDe);
+        lblTieuDe.getStyleClass().add("stat-title");
+        lblTieuDe.setWrapText(true);
 
-        Label lblValue = new Label(value);
-        lblValue.getStyleClass().add("stat-value");
+        Label lblGiaTri = new Label(giaTri);
+        lblGiaTri.getStyleClass().add("stat-value");
 
-        card.getChildren().addAll(lblTitle, lblValue);
-        return card;
+        Label lblMoTa = new Label(moTa);
+        lblMoTa.getStyleClass().add("section-subtitle");
+        lblMoTa.setWrapText(true);
+
+        the.getChildren().addAll(lblTieuDe, lblGiaTri, lblMoTa);
+
+        return the;
     }
 }

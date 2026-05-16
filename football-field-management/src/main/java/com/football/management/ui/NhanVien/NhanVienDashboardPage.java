@@ -18,18 +18,19 @@ public class NhanVienDashboardPage {
         VBox menu = new VBox(12);
         menu.getStyleClass().add("sidebar");
 
-        Label lblVaiTro = new Label("Nhan vien");
+        Label lblVaiTro = new Label("Nhân viên");
         lblVaiTro.getStyleClass().add("sidebar-title");
 
-        Label lblXinChao = new Label("Xin chao: " + AppState.getTenNguoiDung());
+        Label lblXinChao = new Label("Xin chào: " + AppState.getTenNguoiDung());
         lblXinChao.getStyleClass().add("sidebar-subtitle");
 
-        Button btnTongQuan = createMenuButton("Tong quan");
-        Button btnQuanLyDatSan = createMenuButton("Quan ly dat san");
-        Button btnQuanLyKhachHang = createMenuButton("Quan ly khach hang");
-        Button btnXemLichSan = createMenuButton("Xem lich san");
-        Button btnThanhToan = createMenuButton("Thanh toan");
-        Button btnDangXuat = createMenuButton("Dang xuat");
+        Button btnTongQuan = createMenuButton("Tổng quan");
+        Button btnQuanLyDatSan = createMenuButton("Quản lý đặt sân");
+        Button btnQuanLyKhachHang = createMenuButton("Quản lý khách hàng");
+        Button btnXemLichSan = createMenuButton("Xem lịch sân");
+        Button btnThanhToan = createMenuButton("Thanh toán");
+        Button btnDangXuat = createMenuButton("Đăng xuất");
+
         btnDangXuat.getStyleClass().add("menu-button-logout");
 
         menu.getChildren().addAll(
@@ -46,22 +47,91 @@ public class NhanVienDashboardPage {
         root.setLeft(menu);
         root.setCenter(TongQuanNhanVienPage.createView());
 
-        btnTongQuan.setOnAction(e -> root.setCenter(TongQuanNhanVienPage.createView()));
-        btnQuanLyDatSan.setOnAction(e -> root.setCenter(QuanLyDatSanPage.createView()));
-        btnQuanLyKhachHang.setOnAction(e -> root.setCenter(QuanLyKhachHangPage.createView()));
-        btnXemLichSan.setOnAction(e -> root.setCenter(XemLichSanPage.createView()));
-        btnThanhToan.setOnAction(e -> root.setCenter(ThanhToanPage.createView()));
+        datMenuDangChon(
+                btnTongQuan,
+                btnTongQuan,
+                btnQuanLyDatSan,
+                btnQuanLyKhachHang,
+                btnXemLichSan,
+                btnThanhToan
+        );
+
+        btnTongQuan.setOnAction(e -> {
+            root.setCenter(TongQuanNhanVienPage.createView());
+            datMenuDangChon(
+                    btnTongQuan,
+                    btnTongQuan,
+                    btnQuanLyDatSan,
+                    btnQuanLyKhachHang,
+                    btnXemLichSan,
+                    btnThanhToan
+            );
+        });
+
+        btnQuanLyDatSan.setOnAction(e -> {
+            root.setCenter(QuanLyDatSanPage.createView());
+            datMenuDangChon(
+                    btnQuanLyDatSan,
+                    btnTongQuan,
+                    btnQuanLyDatSan,
+                    btnQuanLyKhachHang,
+                    btnXemLichSan,
+                    btnThanhToan
+            );
+        });
+
+        btnQuanLyKhachHang.setOnAction(e -> {
+            root.setCenter(QuanLyKhachHangPage.createView());
+            datMenuDangChon(
+                    btnQuanLyKhachHang,
+                    btnTongQuan,
+                    btnQuanLyDatSan,
+                    btnQuanLyKhachHang,
+                    btnXemLichSan,
+                    btnThanhToan
+            );
+        });
+
+        btnXemLichSan.setOnAction(e -> {
+            root.setCenter(XemLichSanPage.createView());
+            datMenuDangChon(
+                    btnXemLichSan,
+                    btnTongQuan,
+                    btnQuanLyDatSan,
+                    btnQuanLyKhachHang,
+                    btnXemLichSan,
+                    btnThanhToan
+            );
+        });
+
+        btnThanhToan.setOnAction(e -> {
+            root.setCenter(ThanhToanPage.createView());
+            datMenuDangChon(
+                    btnThanhToan,
+                    btnTongQuan,
+                    btnQuanLyDatSan,
+                    btnQuanLyKhachHang,
+                    btnXemLichSan,
+                    btnThanhToan
+            );
+        });
 
         btnDangXuat.setOnAction(e -> {
             AppState.clear();
-            AppNavigator.goTo(DangNhapPage.createScene(), "Dang nhap");
+            AppNavigator.goTo(DangNhapPage.createScene(), "Đăng nhập");
         });
 
         Scene scene = new Scene(root, 1280, 820);
-        scene.getStylesheets().add(
-                NhanVienDashboardPage.class.getResource("/css/dashboard.css").toExternalForm()
-        );
-        return scene;
+
+scene.getStylesheets().add(
+        NhanVienDashboardPage.class.getResource("/css/dashboard.css").toExternalForm()
+);
+
+scene.getStylesheets().add(
+        NhanVienDashboardPage.class.getResource("/css/nhanvien.css").toExternalForm()
+);
+
+return scene;
     }
 
     private static Button createMenuButton(String text) {
@@ -70,5 +140,15 @@ public class NhanVienDashboardPage {
         button.setPrefHeight(42);
         button.getStyleClass().add("menu-button");
         return button;
+    }
+
+    private static void datMenuDangChon(Button nutDangChon, Button... tatCaNut) {
+        for (Button nut : tatCaNut) {
+            nut.getStyleClass().remove("menu-button-active");
+        }
+
+        if (!nutDangChon.getStyleClass().contains("menu-button-active")) {
+            nutDangChon.getStyleClass().add("menu-button-active");
+        }
     }
 }
