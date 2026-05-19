@@ -1,72 +1,204 @@
 package com.football.management.ui.KhachHang;
 
+import com.football.management.dao.KhachHangDatSanDAO;
+import com.football.management.dao.KhachHangDatSanDAO.SanKhachHangRow;
+
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 public class DanhSachSanPage {
 
-    public static Node createView() {
+    /**
+     * Callback khi chọn sân
+     */
+    @SuppressWarnings("unchecked")
+    public static Node createView(Consumer<SanKhachHangRow> onChonSan) {
         VBox root = new VBox(16);
         root.setPadding(new Insets(24));
         root.getStyleClass().add("content-root");
 
-        Label lblTitle = new Label("Danh sach san");
+        // ===== TITLE =====
+        Label lblTitle = new Label("Danh sách sân");
         lblTitle.getStyleClass().add("page-title");
 
-        Label lblSubtitle = new Label("Tim kiem va loc san theo nhu cau");
+        Label lblSubtitle = new Label("Tìm kiếm và lọc sân theo nhu cầu");
         lblSubtitle.getStyleClass().add("section-subtitle");
 
+        // ===== FILTER BAR =====
         HBox filterBar = new HBox(10);
         filterBar.getStyleClass().add("filter-bar");
 
         TextField txtTimKiem = new TextField();
-        txtTimKiem.setPromptText("Tim theo ten san...");
-        txtTimKiem.getStyleClass().add("search-field");
+        txtTimKiem.setPromptText("Tìm theo tên sân...");
         txtTimKiem.setPrefWidth(250);
 
         ComboBox<String> cbLoaiSan = new ComboBox<>();
-        cbLoaiSan.getItems().addAll("Tat ca", "San 5", "San 7", "San 11");
-        cbLoaiSan.setPromptText("Loai san");
+        cbLoaiSan.getItems().addAll("Tất cả", "Sân 5", "Sân 7", "Sân 11");
+        cbLoaiSan.setValue("Tất cả");
 
         ComboBox<String> cbMucGia = new ComboBox<>();
-        cbMucGia.getItems().addAll("Tat ca", "Duoi 200000", "200000 - 500000", "Tren 500000");
-        cbMucGia.setPromptText("Muc gia");
+        cbMucGia.getItems().addAll("Tất cả", "Dưới 200,000", "200,000 – 500,000", "Trên 500,000");
+        cbMucGia.setValue("Tất cả");
 
-        Button btnLoc = new Button("Loc");
+        Button btnLoc = new Button("Lọc");
         btnLoc.getStyleClass().add("primary-button");
 
         filterBar.getChildren().addAll(txtTimKiem, cbLoaiSan, cbMucGia, btnLoc);
 
-        TableView<SanRowKH> table = new TableView<>();
+        // ===== TABLE =====
+        TableView<SanKhachHangRow> table = new TableView<>();
 
-        TableColumn<SanRowKH, String> colMa = new TableColumn<>("Ma san");
-        colMa.setCellValueFactory(data -> data.getValue().maSanProperty());
+        // Mã sân
+        TableColumn<SanKhachHangRow, String> colMa = new TableColumn<>("Mã sân");
+        colMa.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getMaSanCode()));
 
-        TableColumn<SanRowKH, String> colTen = new TableColumn<>("Ten san");
-        colTen.setCellValueFactory(data -> data.getValue().tenSanProperty());
+        // Tên sân
+        TableColumn<SanKhachHangRow, String> colTen = new TableColumn<>("Tên sân");
+        colTen.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getTenSan()));
 
-        TableColumn<SanRowKH, String> colLoai = new TableColumn<>("Loai san");
-        colLoai.setCellValueFactory(data -> data.getValue().loaiSanProperty());
+        // Loại sân
+        TableColumn<SanKhachHangRow, String> colLoai = new TableColumn<>("Loại sân");
+        colLoai.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getTenLoaiSan()));
 
-        TableColumn<SanRowKH, String> colGia = new TableColumn<>("Gia moi gio");
-        colGia.setCellValueFactory(data -> data.getValue().giaMoiGioProperty());
+        // Giá
+        TableColumn<SanKhachHangRow, String> colGia = new TableColumn<>("Giá/giờ");
+        colGia.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getGiaHienThi()));
 
-        TableColumn<SanRowKH, String> colTrangThai = new TableColumn<>("Trang thai");
-        colTrangThai.setCellValueFactory(data -> data.getValue().trangThaiProperty());
+        // Trạng thái
+        TableColumn<SanKhachHangRow, String> colTrangThai = new TableColumn<>("Trạng thái");
+        colTrangThai.setCellValueFactory(d -> new SimpleStringProperty(chuyenTrangThai(d.getValue().getTrangThaiSan())));
 
-        table.getColumns().addAll(colMa, colTen, colLoai, colGia, colTrangThai);
-        table.setItems(FXCollections.observableArrayList(
-                new SanRowKH("S01", "San A", "San 5", "150000", "SAN_SANG"),
-                new SanRowKH("S02", "San B", "San 7", "250000", "SAN_SANG"),
-                new SanRowKH("S03", "San C", "San 11", "500000", "DANG_SU_DUNG")
-        ));
+        // ===== ACTION =====
+        TableColumn<SanKhachHangRow, Void> colAction = new TableColumn<>("Chi tiết");
+        colAction.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button("Xem chi tiết");
+
+            {
+                btn.getStyleClass().add("light-button");
+                btn.setOnAction(e -> {
+                    SanKhachHangRow row = getTableView().getItems().get(getIndex());
+                    if (onChonSan != null) {
+                        onChonSan.accept(row);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btn);
+            }
+        });
+
+        table.getColumns().addAll(colMa, colTen, colLoai, colGia, colTrangThai, colAction);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
+        // ===== DOUBLE CLICK ROW =====
+        table.setRowFactory(tv -> {
+            TableRow<SanKhachHangRow> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty() && event.getClickCount() == 2) {
+                    SanKhachHangRow san = row.getItem();
+                    if (onChonSan != null) {
+                        onChonSan.accept(san);
+                    }
+                }
+            });
+            return row;
+        });
+
+        // ===== DATA =====
+        ObservableList<SanKhachHangRow> danhSachGoc = FXCollections.observableArrayList();
+        ObservableList<SanKhachHangRow> danhSachHienThi = FXCollections.observableArrayList();
+        table.setItems(danhSachHienThi);
+
+        // ===== FILTER LOGIC =====
+        Runnable applyFilter = () -> {
+            String keyword = txtTimKiem.getText().trim().toLowerCase();
+            String loai = cbLoaiSan.getValue();
+            String mucGia = cbMucGia.getValue();
+
+            List<SanKhachHangRow> filtered = danhSachGoc.stream()
+                    .filter(s -> keyword.isEmpty() 
+                            || s.getTenSan().toLowerCase().contains(keyword) 
+                            || s.getMaSanCode().toLowerCase().contains(keyword))
+                    .filter(s -> "Tất cả".equals(loai) 
+                            || s.getTenLoaiSan().equalsIgnoreCase(loai))
+                    .filter(s -> {
+                        if ("Tất cả".equals(mucGia)) {
+                            return true;
+                        }
+
+                        BigDecimal gia = s.getGiaMoiGioHienTai();
+                        if (gia == null) {
+                            return false;
+                        }
+
+                        return switch (mucGia) {
+                            case "Dưới 200,000" -> gia.compareTo(BigDecimal.valueOf(200000)) < 0;
+                            case "200,000 – 500,000" -> gia.compareTo(BigDecimal.valueOf(200000)) >= 0 
+                                    && gia.compareTo(BigDecimal.valueOf(500000)) <= 0;
+                            case "Trên 500,000" -> gia.compareTo(BigDecimal.valueOf(500000)) > 0;
+                            default -> true;
+                        };
+                    })
+                    .collect(Collectors.toList());
+
+            danhSachHienThi.setAll(filtered);
+        };
+
+        // ===== EVENTS =====
+        btnLoc.setOnAction(e -> applyFilter.run());
+        txtTimKiem.textProperty().addListener((obs, oldVal, newVal) -> applyFilter.run());
+        cbLoaiSan.setOnAction(e -> applyFilter.run());
+        cbMucGia.setOnAction(e -> applyFilter.run());
+
+        // ===== PLACEHOLDER =====
+        Label lblTrong = new Label("Đang tải dữ liệu...");
+        table.setPlaceholder(lblTrong);
+
+        // ===== ADD UI =====
         root.getChildren().addAll(lblTitle, lblSubtitle, filterBar, table);
+
+        // ===== LOAD DATA =====
+        Thread t = new Thread(() -> {
+            try {
+                KhachHangDatSanDAO dao = new KhachHangDatSanDAO();
+                List<SanKhachHangRow> ds = dao.layDanhSachSanChoKhachHang();
+
+                Platform.runLater(() -> {
+                    danhSachGoc.setAll(ds);
+                    danhSachHienThi.setAll(ds);
+                    lblTrong.setText(ds.isEmpty() ? "Không có sân nào." : "");
+                });
+            } catch (Exception ex) {
+                Platform.runLater(() -> lblTrong.setText("Lỗi tải dữ liệu: " + ex.getMessage()));
+            }
+        });
+        t.setDaemon(true);
+        t.start();
+
         return root;
+    }
+
+    private static String chuyenTrangThai(String trangThai) {
+        return switch (trangThai == null ? "" : trangThai) {
+            case "SAN_SANG" -> "Sẵn sàng";
+            case "DANG_SU_DUNG" -> "Đang sử dụng";
+            case "BAO_TRI" -> "Bảo trì";
+            default -> trangThai;
+        };
     }
 }

@@ -37,4 +37,5 @@ public class LichSuDatSanRow {
     public StringProperty trangThaiProperty() {
         return trangThai;
     }
+   
 }

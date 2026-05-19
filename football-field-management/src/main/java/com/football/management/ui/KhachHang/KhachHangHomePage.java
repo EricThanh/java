@@ -2,6 +2,7 @@ package com.football.management.ui.KhachHang;
 
 import com.football.management.app.AppNavigator;
 import com.football.management.app.AppState;
+import com.football.management.dao.KhachHangDatSanDAO.SanKhachHangRow;
 import com.football.management.ui.auth.DangNhapPage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,46 +16,53 @@ public class KhachHangHomePage {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("page-root");
 
+        // ── Sidebar ──
         VBox menu = new VBox(12);
         menu.getStyleClass().add("sidebar");
 
-        Label lblVaiTro = new Label("Khach hang");
+        Label lblVaiTro  = new Label("Khách hàng");
         lblVaiTro.getStyleClass().add("sidebar-title");
 
-        Label lblXinChao = new Label("Xin chao: " + AppState.getTenNguoiDung());
+        Label lblXinChao = new Label("Xin chào: " + AppState.getTenNguoiDung());
         lblXinChao.getStyleClass().add("sidebar-subtitle");
 
-        Button btnTrangChu = createMenuButton("Trang chu");
-        Button btnDanhSachSan = createMenuButton("Danh sach san");
-        Button btnChiTietSan = createMenuButton("Chi tiet san");
-        Button btnDatSan = createMenuButton("Dat san");
-        Button btnLichSu = createMenuButton("Lich su dat san");
-        Button btnDangXuat = createMenuButton("Dang xuat");
+        Button btnTrangChu   = createMenuButton("Trang chủ");
+        Button btnDanhSach   = createMenuButton("Danh sách sân");
+        Button btnDatSan     = createMenuButton("Đặt sân");
+        Button btnLichSu     = createMenuButton("Lịch sử đặt sân");
+        Button btnDangXuat   = createMenuButton("Đăng xuất");
         btnDangXuat.getStyleClass().add("menu-button-logout");
 
         menu.getChildren().addAll(
-                lblVaiTro,
-                lblXinChao,
-                btnTrangChu,
-                btnDanhSachSan,
-                btnChiTietSan,
-                btnDatSan,
-                btnLichSu,
-                btnDangXuat
-        );
+                lblVaiTro, lblXinChao,
+                btnTrangChu, btnDanhSach, btnDatSan, btnLichSu,
+                btnDangXuat);
 
         root.setLeft(menu);
+
+        // ── Trang chủ mặc định ──
         root.setCenter(TrangChuKhachHangPage.createView());
 
+        // ── Navigation ──
         btnTrangChu.setOnAction(e -> root.setCenter(TrangChuKhachHangPage.createView()));
-        btnDanhSachSan.setOnAction(e -> root.setCenter(DanhSachSanPage.createView()));
-        btnChiTietSan.setOnAction(e -> root.setCenter(ChiTietSanPage.createView()));
+
+        // Danh sách sân → khi chọn sân thì navigate sang Chi tiết
+        btnDanhSach.setOnAction(e ->
+            root.setCenter(DanhSachSanPage.createView(san -> {
+                // Từ Chi tiết có thể nhấn Đặt sân để mở DatSanPage với sân đó sẵn
+                root.setCenter(ChiTietSanPage.createView(san,
+                        sanChon -> root.setCenter(DatSanPage.createView(sanChon))));
+            }))
+        );
+
+        // Đặt sân trực tiếp (không chọn sân trước)
         btnDatSan.setOnAction(e -> root.setCenter(DatSanPage.createView()));
+
         btnLichSu.setOnAction(e -> root.setCenter(LichSuDatSanPage.createView()));
 
         btnDangXuat.setOnAction(e -> {
             AppState.clear();
-            AppNavigator.goTo(DangNhapPage.createScene(), "Dang nhap");
+            AppNavigator.goTo(DangNhapPage.createScene(), "Đăng nhập");
         });
 
         Scene scene = new Scene(root, 1280, 820);
