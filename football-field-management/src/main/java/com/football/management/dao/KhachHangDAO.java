@@ -534,4 +534,77 @@ public class KhachHangDAO {
     }
 }
 
+
+    public boolean xoaKhachHang(String maKhachHangCode) throws SQLException {
+        if (maKhachHangCode == null || maKhachHangCode.trim().isEmpty()) {
+            throw new SQLException("Mã khách hàng không hợp lệ.");
+        }
+
+        String maCode = maKhachHangCode.trim();
+
+        String sqlLayMaTaiKhoan = """
+                SELECT ma_tai_khoan
+                FROM khach_hang
+                WHERE UPPER(ma_khach_hang_code) = UPPER(?)
+                """;
+
+        String sqlXoaKhachHang = """
+                DELETE FROM khach_hang
+                WHERE UPPER(ma_khach_hang_code) = UPPER(?)
+                """;
+
+        String sqlXoaTaiKhoan = """
+                DELETE FROM tai_khoan
+                WHERE ma_tai_khoan = ?
+                """;
+
+        try (Connection conn = DBConnection.getConnection()) {
+            // Tắt auto-commit để dùng transaction (đảm bảo xóa đồng thời cả 2 bảng)
+            conn.setAutoCommit(false);
+
+            try {
+                int maTaiKhoan = -1;
+
+                // 1. Lấy mã tài khoản của khách hàng này
+                try (PreparedStatement ps = conn.prepareStatement(sqlLayMaTaiKhoan)) {
+                    ps.setString(1, maCode);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            maTaiKhoan = rs.getInt("ma_tai_khoan");
+                        } else {
+                            conn.rollback();
+                            return false; // Không tìm thấy khách hàng
+                        }
+                    }
+                }
+
+                // 2. Xóa dữ liệu trong bảng khach_hang
+                // Lưu ý: Nếu khách hàng đã có đơn đặt sân, lệnh này sẽ quăng SQLException do ràng buộc khóa ngoại (Foreign Key)
+                try (PreparedStatement ps = conn.prepareStatement(sqlXoaKhachHang)) {
+                    ps.setString(1, maCode);
+                    ps.executeUpdate();
+                }
+
+                // 3. Xóa dữ liệu trong bảng tai_khoan
+                if (maTaiKhoan != -1) {
+                    try (PreparedStatement ps = conn.prepareStatement(sqlXoaTaiKhoan)) {
+                        ps.setInt(1, maTaiKhoan);
+                        ps.executeUpdate();
+                    }
+                }
+
+                // Xác nhận lưu thay đổi
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                // Nếu có bất kỳ lỗi nào (như vướng khóa ngoại do đã đặt sân), hoàn tác lại toàn bộ
+                conn.rollback();
+                throw e;
+            } finally {
+                // Bật lại auto-commit
+                conn.setAutoCommit(true);
+            }
+        }
+    }
 }

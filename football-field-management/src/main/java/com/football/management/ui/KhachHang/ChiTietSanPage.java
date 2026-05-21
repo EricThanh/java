@@ -48,10 +48,15 @@ public class ChiTietSanPage {
         lblTenSan.getStyleClass().add("section-title");
 
         // ===== TRẠNG THÁI =====
+        // Xác định sân có nằm trong diện hoạt động bình thường hay không
+        boolean coTheDatSan = "SAN_SANG".equals(san.getTrangThaiSan()) ||
+                "DANG_SU_DUNG".equals(san.getTrangThaiSan());
+
+        // Hiển thị chữ "Đang hoạt động" thân thiện với Khách hàng
         String trangThaiHienThi = switch (san.getTrangThaiSan() == null ? "" : san.getTrangThaiSan()) {
-            case "SAN_SANG" -> "Sẵn sàng";
-            case "DANG_SU_DUNG" -> "Đang sử dụng";
+            case "SAN_SANG", "DANG_SU_DUNG" -> "Đang hoạt động";
             case "BAO_TRI" -> "Bảo trì";
+            case "NGUNG_HOAT_DONG" -> "Ngừng hoạt động";
             default -> san.getTrangThaiSan();
         };
 
@@ -66,10 +71,10 @@ public class ChiTietSanPage {
         // ===== NỘI DUNG =====
         Label lblNoiDung = new Label(
                 "Loại sân    : " + san.getTenLoaiSan() + "\n" +
-                "Giá/giờ     : " + san.getGiaHienThi() + "\n" +
-                "Vị trí      : " + viTri + "\n" +
-                "Trạng thái  : " + trangThaiHienThi + "\n" +
-                "Mở cửa      : " + gioCua
+                        "Giá/giờ     : " + san.getGiaHienThi() + "\n" +
+                        "Vị trí      : " + viTri + "\n" +
+                        "Trạng thái  : " + trangThaiHienThi + "\n" +
+                        "Mở cửa      : " + gioCua
         );
         lblNoiDung.getStyleClass().add("section-subtitle");
         lblNoiDung.setStyle("-fx-font-family: monospace;");
@@ -80,7 +85,8 @@ public class ChiTietSanPage {
         // ===== BUTTON ĐẶT SÂN =====
         Button btnDatSan = new Button("Đặt sân");
         btnDatSan.getStyleClass().add("primary-button");
-        btnDatSan.setDisable(!"SAN_SANG".equals(san.getTrangThaiSan()));
+        // Chỉ ẩn/khóa nút khi sân không thuộc diện có thể đặt (Bảo trì/Ngừng hoạt động)
+        btnDatSan.setDisable(!coTheDatSan);
 
         // ===== BUTTON YÊU THÍCH =====
         Button btnYeuThich = new Button("Thêm yêu thích");
@@ -92,8 +98,8 @@ public class ChiTietSanPage {
 
         // ===== ACTION ĐẶT SÂN =====
         btnDatSan.setOnAction(e -> {
-            if (!"SAN_SANG".equals(san.getTrangThaiSan())) {
-                new Alert(Alert.AlertType.WARNING, "Sân hiện không khả dụng.").showAndWait();
+            if (!coTheDatSan) {
+                new Alert(Alert.AlertType.WARNING, "Sân hiện đang bảo trì hoặc ngừng hoạt động. Vui lòng chọn sân khác!").showAndWait();
                 return;
             }
             if (onDatSan != null) {

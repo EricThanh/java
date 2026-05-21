@@ -195,9 +195,11 @@ public class DanhSachSanPage {
 
     private static String chuyenTrangThai(String trangThai) {
         return switch (trangThai == null ? "" : trangThai) {
-            case "SAN_SANG" -> "Sẵn sàng";
-            case "DANG_SU_DUNG" -> "Đang sử dụng";
+            // Gộp chung trạng thái Sẵn sàng và Đang sử dụng thành 1 chữ thân thiện
+            case "SAN_SANG", "DANG_SU_DUNG" -> "Đang hoạt động";
+
             case "BAO_TRI" -> "Bảo trì";
+            case "NGUNG_HOAT_DONG" -> "Ngừng hoạt động";
             default -> trangThai;
         };
     }

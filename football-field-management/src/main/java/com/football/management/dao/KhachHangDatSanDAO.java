@@ -107,8 +107,6 @@ public class KhachHangDatSanDAO {
         public void setTrangThaiDatSan(String string) {
             this.trangThaiDatSan = string;
         }
-
-    
     }
 
     public static class TinhTienResult {
@@ -272,8 +270,8 @@ public class KhachHangDatSanDAO {
                       thu_trong_tuan IS NULL
                       OR thu_trong_tuan = TO_NUMBER(TO_CHAR(?, 'D'))
                   )
-                  AND gio_bat_dau <= ?
-                  AND gio_ket_thuc >= ?
+                AND TO_DATE(gio_bat_dau, 'HH24:MI') <= TO_DATE(?, 'HH24:MI')
+                AND TO_DATE(gio_ket_thuc, 'HH24:MI') >= TO_DATE(?, 'HH24:MI')
                 ORDER BY thu_trong_tuan DESC NULLS LAST, gia_moi_gio ASC
                 FETCH FIRST 1 ROWS ONLY
                 """;
@@ -330,7 +328,7 @@ public class KhachHangDatSanDAO {
     }
 
     private UuDai timUuDaiTheoMa(String maGiamGia, LocalDate ngayDat,
-                                  String gioBatDau, BigDecimal tongTienGoc) throws SQLException {
+                                 String gioBatDau, BigDecimal tongTienGoc) throws SQLException {
         String sql = """
                 SELECT ma_uu_dai, ma_giam_gia, ten_uu_dai, loai_giam_gia,
                        gia_tri_giam, gia_tri_dat_toi_thieu, ngay_bat_dau,
@@ -355,17 +353,25 @@ public class KhachHangDatSanDAO {
                     ud.setLoaiGiamGia(rs.getString("loai_giam_gia"));
                     ud.setGiaTriGiam(rs.getBigDecimal("gia_tri_giam"));
                     ud.setGiaTriDatToiThieu(rs.getBigDecimal("gia_tri_dat_toi_thieu"));
+
                     // Kiểm tra giá trị tối thiểu
                     if (ud.getGiaTriDatToiThieu() != null
                             && tongTienGoc.compareTo(ud.getGiaTriDatToiThieu()) < 0) {
                         return null; // không đủ điều kiện
                     }
+
                     // Kiểm tra khung giờ ưu đãi nếu có
                     String gioUuDaiBD = rs.getString("gio_bat_dau");
                     String gioUuDaiKT = rs.getString("gio_ket_thuc");
+
                     if (gioUuDaiBD != null && gioUuDaiKT != null) {
-                        if (gioBatDau.compareTo(gioUuDaiBD) < 0
-                                || gioBatDau.compareTo(gioUuDaiKT) >= 0) {
+                        // Chuẩn hóa độ dài chuỗi để compareTo() hoạt động đúng
+                        // Ví dụ: "8:00" -> "08:00", "10:00" giữ nguyên
+                        String hDat = gioBatDau.length() == 4 ? "0" + gioBatDau : gioBatDau;
+                        String hUuDaiBD = gioUuDaiBD.length() == 4 ? "0" + gioUuDaiBD : gioUuDaiBD;
+                        String hUuDaiKT = gioUuDaiKT.length() == 4 ? "0" + gioUuDaiKT : gioUuDaiKT;
+
+                        if (hDat.compareTo(hUuDaiBD) < 0 || hDat.compareTo(hUuDaiKT) >= 0) {
                             return null; // ngoài khung giờ ưu đãi
                         }
                     }
@@ -399,14 +405,21 @@ public class KhachHangDatSanDAO {
                 WHERE ma_san = ?
                   AND ngay_dat = ?
                   AND trang_thai_dat_san NOT IN ('DA_HUY')
-                  AND NOT (gio_ket_thuc <= ? OR gio_bat_dau >= ?)
+                  AND TO_DATE(?, 'HH24:MI') < TO_DATE(gio_ket_thuc, 'HH24:MI')
+                  AND TO_DATE(?, 'HH24:MI') > TO_DATE(gio_bat_dau, 'HH24:MI')
                 """;
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, maSan);
             ps.setDate(2, Date.valueOf(ngayDat));
-            ps.setString(3, gioBatDau);
-            ps.setString(4, gioKetThuc);
+
+            // Tham số 3: Kiểm tra giờ bắt đầu nhập vào có trước giờ kết thúc trong DB không
+            ps.setString(3, gioBatDau.trim());
+
+            // Tham số 4: Kiểm tra giờ kết thúc nhập vào có sau giờ bắt đầu trong DB không
+            ps.setString(4, gioKetThuc.trim());
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt("so_luong") > 0;
             }
@@ -416,8 +429,8 @@ public class KhachHangDatSanDAO {
 
     /** Tạo đơn đặt sân mới */
     public String taoMoiDatSan(int maKhachHang, int maSan,
-                                LocalDate ngayDat, String gioBatDau, String gioKetThuc,
-                                String ghiChu, TinhTienResult tinhTien) throws SQLException {
+                               LocalDate ngayDat, String gioBatDau, String gioKetThuc,
+                               String ghiChu, TinhTienResult tinhTien) throws SQLException {
 
         // Sinh mã đặt sân tự động
         String maDatSanCode = taoMaDatSanTuDong();
@@ -484,7 +497,7 @@ public class KhachHangDatSanDAO {
 
     /** Lấy lịch sử đặt sân của khách, có thể lọc theo trạng thái */
     public List<LichSuDatSanKHRow> layLichSuDatSan(int maKhachHang,
-                                                     String trangThaiFilter) throws SQLException {
+                                                   String trangThaiFilter) throws SQLException {
         List<LichSuDatSanKHRow> ds = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder("""

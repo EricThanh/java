@@ -11,7 +11,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.util.StringConverter;
 
 import java.util.List;
 
@@ -23,11 +22,8 @@ public class QuanLySanPage {
         SanBongService sanBongService = new SanBongService();
         LoaiSanDAO loaiSanDAO = new LoaiSanDAO();
 
-        // LẤY DANH SÁCH LOẠI SÂN TỪ DB DÙNG CHUNG CHO BẢNG & COMBOBOX
-        List<LoaiSan> danhSachLoaiSan = loaiSanDAO.layTatCaLoaiSan();
-
         // ══════════════════════════════════════════
-        //  ROOT  (VBox toàn trang)
+        //  ROOT  (VBox toàn trang, không padding ngang — topbar + statrow kéo full)
         // ══════════════════════════════════════════
         VBox root = new VBox(0);
         root.setStyle("-fx-background-color: #f0f2f5;");
@@ -57,27 +53,13 @@ public class QuanLySanPage {
         Label lblPanelTitle = new Label("✏  Thông tin sân bóng");
         lblPanelTitle.getStyleClass().add("section-title");
 
-        // Mã sân code
-        TextField txtMaSan = inputField("VD: S1");
-
-        // Loại sân ComboBox
+        // Mã sân + Loại sân
+        TextField txtMaSan = inputField("VD: 5A1");
         ComboBox<LoaiSan> cbLoaiSan = new ComboBox<>();
-        cbLoaiSan.setItems(FXCollections.observableArrayList(danhSachLoaiSan));
+        cbLoaiSan.setItems(FXCollections.observableArrayList(loaiSanDAO.layTatCaLoaiSan()));
         cbLoaiSan.setPromptText("Chọn loại sân");
         cbLoaiSan.setMaxWidth(Double.MAX_VALUE);
         cbLoaiSan.getStyleClass().add("combo-box");
-
-        // Giúp ComboBox hiển thị Tên loại sân thay vì địa chỉ Object
-        cbLoaiSan.setConverter(new StringConverter<LoaiSan>() {
-            @Override
-            public String toString(LoaiSan object) {
-                return object == null ? "" : object.getTenLoaiSan();
-            }
-            @Override
-            public LoaiSan fromString(String string) {
-                return null;
-            }
-        });
 
         HBox row1 = twoFieldRow(fieldBox("Mã sân", txtMaSan), fieldBox("Loại sân", cbLoaiSan));
 
@@ -90,7 +72,7 @@ public class QuanLySanPage {
         // Sức chứa + Giờ mở cửa
         TextField txtSucChua = inputField("VD: 200");
         TextField txtGioMoCua = inputField("06:00");
-        HBox row4 = twoFieldRow(fieldBox("Sức chứa", txtSucChua), fieldBox("Giờ mở", txtGioMoCua));
+        HBox row4 = twoFieldRow(fieldBox("Sức chứa", txtSucChua), fieldBox("Giờ mở cửa", txtGioMoCua));
 
         // Giờ đóng cửa
         TextField txtGioDongCua = inputField("22:00");
@@ -126,7 +108,7 @@ public class QuanLySanPage {
         VBox ttBox = new VBox(6, lblTT, chipGrid);
 
         // ── Buttons ──
-        Button btnThem = new Button("Thêm");
+        Button btnThem = new Button("＋  Thêm sân");
         btnThem.getStyleClass().add("primary-button");
         btnThem.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(btnThem, Priority.ALWAYS);
@@ -145,7 +127,7 @@ public class QuanLySanPage {
                 fieldBox("Tên sân", txtTenSan),
                 fieldBox("Vị trí / Địa chỉ", txtViTri),
                 row4,
-                fieldBox("Giờ đóng ", txtGioDongCua),
+                fieldBox("Giờ đóng cửa", txtGioDongCua),
                 ttBox, actionBar
         );
 
@@ -194,23 +176,13 @@ public class QuanLySanPage {
         TableColumn<SanBong, String> colTen = col("Tên sân",
                 d -> new SimpleStringProperty(d.getValue().getTenSan()));
 
-        // SỬA LẠI CỘT LOẠI SÂN HIỂN THỊ TÊN THAY VÌ MÃ
-        TableColumn<SanBong, String> colLoai = col("Loại sân", d -> {
-            int maLoai = d.getValue().getMaLoaiSan();
-            // Lấy tên loại sân dựa vào ID
-            String tenLoaiSan = danhSachLoaiSan.stream()
-                    .filter(ls -> ls.getMaLoaiSan() == maLoai)
-                    .map(LoaiSan::getTenLoaiSan) // Lưu ý: Hàm này phải khớp với getter trong LoaiSan
-                    .findFirst()
-                    .orElse("Không rõ");
-            return new SimpleStringProperty(tenLoaiSan);
-        });
-
+        TableColumn<SanBong, String> colLoai = col("Loại sân",
+                d -> new SimpleStringProperty(String.valueOf(d.getValue().getMaLoaiSan())));
         colLoai.setCellFactory(c -> new TableCell<>() {
             @Override protected void updateItem(String v, boolean empty) {
                 super.updateItem(v, empty);
                 if (empty || v == null) { setGraphic(null); return; }
-                Label tag = new Label(v);
+                Label tag = new Label(v + " người");
                 tag.getStyleClass().add("type-tag");
                 setGraphic(tag); setText(null);
             }
@@ -293,21 +265,15 @@ public class QuanLySanPage {
             txtSucChua.setText(san.getSucChua() != null ? String.valueOf(san.getSucChua()) : "");
             txtGioMoCua.setText(san.getGioMoCua() != null ? san.getGioMoCua() : "");
             txtGioDongCua.setText(san.getGioDongCua() != null ? san.getGioDongCua() : "");
-
-            // Fill ComboBox đúng loại sân
             cbLoaiSan.getItems().stream()
                     .filter(ls -> ls.getMaLoaiSan() == san.getMaLoaiSan())
                     .findFirst().ifPresent(cbLoaiSan::setValue);
-
             for (ToggleButton chip : chips)
                 chip.setSelected(chip.getUserData().equals(san.getTrangThaiSan()));
         });
 
         btnThem.setOnAction(e -> {
             try {
-                if(cbLoaiSan.getValue() == null) {
-                    hienLoi("Vui lòng chọn Loại Sân!"); return;
-                }
                 SanBong san = collectForm(txtMaSan, txtTenSan, cbLoaiSan, txtViTri,
                         txtSucChua, tgTT, txtGioMoCua, txtGioDongCua);
                 sanBongService.themSan(san);
@@ -321,8 +287,6 @@ public class QuanLySanPage {
         btnCapNhat.setOnAction(e -> {
             SanBong sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { hienLoi("Vui lòng chọn sân cần cập nhật"); return; }
-            if (cbLoaiSan.getValue() == null) { hienLoi("Vui lòng chọn Loại Sân!"); return; }
-
             try {
                 sel.setMaSanCode(txtMaSan.getText().trim());
                 sel.setTenSan(txtTenSan.getText().trim());
@@ -379,8 +343,10 @@ public class QuanLySanPage {
         Region sp = new Region();
         HBox.setHgrow(sp, Priority.ALWAYS);
 
+        Button btnAdd = new Button("＋  Thêm sân mới");
+        btnAdd.getStyleClass().add("primary-button");
 
-        bar.getChildren().addAll(icon, title, badge, sp);
+        bar.getChildren().addAll(icon, title, badge, sp, btnAdd);
         return bar;
     }
 
