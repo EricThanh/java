@@ -168,47 +168,54 @@ public class DatSanDAO {
             default -> trangThai;
         };
     }
+
     public boolean kiemTraTrungLich(int maSan,
-                                LocalDate ngayDat,
-                                String gioBatDau,
-                                String gioKetThuc,
-                                Integer maDatSanBoQua) {
-    String sql =
-            "SELECT COUNT(*) AS so_luong " +
-            "FROM dat_san " +
-            "WHERE ma_san = ? " +
-            "AND ngay_dat = ? " +
-            "AND trang_thai_dat_san NOT IN ('DA_HUY', 'DA_HOAN_THANH') " +
-            "AND (? < gio_ket_thuc AND ? > gio_bat_dau) ";
-
-    if (maDatSanBoQua != null) {
-        sql += "AND ma_dat_san <> ? ";
-    }
-
-    try (Connection conn = DBConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-        ps.setInt(1, maSan);
-        ps.setDate(2, Date.valueOf(ngayDat));
-        ps.setString(3, gioBatDau);
-        ps.setString(4, gioKetThuc);
+                                    LocalDate ngayDat,
+                                    String gioBatDau,
+                                    String gioKetThuc,
+                                    Integer maDatSanBoQua) {
+        // Sử dụng TO_DATE để chuyển chuỗi thành dạng thời gian trước khi so sánh
+        String sql =
+                "SELECT COUNT(*) AS so_luong " +
+                        "FROM dat_san " +
+                        "WHERE ma_san = ? " +
+                        "AND ngay_dat = ? " +
+                        "AND trang_thai_dat_san NOT IN ('DA_HUY', 'DA_HOAN_THANH') " +
+                        "AND (TO_DATE(?, 'HH24:MI') < TO_DATE(gio_ket_thuc, 'HH24:MI') " +
+                        "     AND TO_DATE(?, 'HH24:MI') > TO_DATE(gio_bat_dau, 'HH24:MI')) ";
 
         if (maDatSanBoQua != null) {
-            ps.setInt(5, maDatSanBoQua);
+            sql += "AND ma_dat_san <> ? ";
         }
 
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("so_luong") > 0;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, maSan);
+            ps.setDate(2, Date.valueOf(ngayDat));
+            // Tham số 3 tương ứng với dấu ? đầu tiên (của gioBatDau truyền vào)
+            ps.setString(3, gioBatDau);
+            // Tham số 4 tương ứng với dấu ? thứ hai (của gioKetThuc truyền vào)
+            ps.setString(4, gioKetThuc);
+
+            if (maDatSanBoQua != null) {
+                ps.setInt(5, maDatSanBoQua);
             }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Nếu > 0 nghĩa là CÓ TRÙNG LỊCH (Trả về true)
+                    return rs.getInt("so_luong") > 0;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
+        // Nếu có lỗi Exception, an toàn nhất là chặn lại (trả về true)
+        return true;
     }
-
-    return true;
-}
 public Integer timMaKhachHangTheoMaNhap(String maKhachHangNhap) throws SQLException {
     if (maKhachHangNhap == null || maKhachHangNhap.trim().isEmpty()) {
         return null;

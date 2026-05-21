@@ -10,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 
 import java.util.Arrays;
@@ -22,11 +21,7 @@ public class ChuSanDashboardPage {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("page-root");
 
-        // ===== SIDEBAR =====
-        VBox sidebar = buildSidebar(root);
-        root.setLeft(sidebar);
-
-        // ===== DEFAULT CONTENT =====
+        root.setLeft(buildSidebar(root));
         root.setCenter(createScrollableContent(TongQuanChuSanPage.createView()));
 
         Scene scene = new Scene(root, 1280, 820);
@@ -36,116 +31,87 @@ public class ChuSanDashboardPage {
         return scene;
     }
 
-    // ────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
     //  SIDEBAR
-    // ────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
     private static VBox buildSidebar(BorderPane root) {
         VBox sidebar = new VBox();
-        sidebar.getStyleClass().add("sidebar");
-        sidebar.setPrefWidth(220);
-        sidebar.setMinWidth(220);
-        sidebar.setMaxWidth(220);
+        sidebar.getStyleClass().add("sidebar");   // teal #0f4c3a
 
-        // --- Header: avatar + tên + vai trò ---
-        VBox header = new VBox(4);
-        header.getStyleClass().add("sidebar-header");
-        header.setPadding(new Insets(20, 20, 16, 20));
-
-        // Avatar circle (initials)
-        Label lblAvatar = new Label("CS");
-        lblAvatar.getStyleClass().add("sidebar-avatar");
-
-        Label lblVaiTro = new Label("Chủ sân");
+        // ── Header ──
+        Label lblVaiTro  = new Label("Chủ sân");
         lblVaiTro.getStyleClass().add("sidebar-title");
 
         Label lblXinChao = new Label("Xin chào: " + AppState.getTenNguoiDung());
         lblXinChao.getStyleClass().add("sidebar-subtitle");
 
-        header.getChildren().addAll(lblAvatar, lblVaiTro, lblXinChao);
+        VBox header = new VBox(4, lblVaiTro, lblXinChao);
+        header.setPadding(new Insets(0, 0, 6, 0));
 
-        // Separator dưới header
-        Separator sep1 = new Separator();
-        sep1.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-pref-height: 1;");
+        // ── Nav buttons ──
+        Button btnTongQuan        = navBtn("Tổng quan");
+        Button btnQuanLySan       = navBtn("Quản lý sân");
+        Button btnQuanLyGia       = navBtn("Quản lý giá");
+        Button btnQuanLyUuDai     = navBtn("Quản lý ưu đãi");
+        Button btnQuanLyNhanVien  = navBtn("Quản lý nhân viên");
+        Button btnBaoCao          = navBtn("Báo cáo");
 
-        // --- Navigation ---
-        VBox nav = new VBox(0);
-        nav.setPadding(new Insets(8, 0, 8, 0));
+        List<Button> navBtns = Arrays.asList(
+                btnTongQuan, btnQuanLySan, btnQuanLyGia,
+                btnQuanLyUuDai, btnQuanLyNhanVien, btnBaoCao
+        );
 
-        Label secTongQuan = navSectionLabel("Tổng quan");
-        Button btnTongQuan = createMenuButton("⊞  Tổng quan");
+        // ── Logout ──
+        Button btnDangXuat = new Button("Đăng xuất");
+        btnDangXuat.setMaxWidth(Double.MAX_VALUE);
+        btnDangXuat.setPrefHeight(42);
+        btnDangXuat.setAlignment(Pos.CENTER_LEFT);
+        btnDangXuat.getStyleClass().add("menu-button-logout");
 
-        Label secQuanLy = navSectionLabel("Quản lý");
-        Button btnQuanLySan     = createMenuButton("⬡  Quản lý sân");
-        Button btnQuanLyGia     = createMenuButton("⊕  Quản lý giá");
-        Button btnQuanLyUuDai   = createMenuButton("♦  Quản lý ưu đãi");
-        Button btnQuanLyNhanVien = createMenuButton("⊙  Quản lý nhân viên");
+        // Spacer
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        Label secHeThong = navSectionLabel("Hệ thống");
-        Button btnBaoCao = createMenuButton("▣  Báo cáo");
-        Button btnCaiDat = createMenuButton("⚙  Cài đặt");
-
-        nav.getChildren().addAll(
-                secTongQuan,
+        sidebar.getChildren().addAll(
+                header,
                 btnTongQuan,
-                secQuanLy,
                 btnQuanLySan,
                 btnQuanLyGia,
                 btnQuanLyUuDai,
                 btnQuanLyNhanVien,
-                secHeThong,
                 btnBaoCao,
-                btnCaiDat
+                spacer,
+                btnDangXuat
         );
 
-        // Spacer đẩy logout xuống đáy
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
+        // Default active
+        setActive(btnTongQuan, navBtns);
 
-        // Separator trước logout
-        Separator sep2 = new Separator();
-        sep2.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-pref-height: 1;");
-
-        Button btnDangXuat = createMenuButton("⏻  Đăng xuất");
-        btnDangXuat.getStyleClass().add("menu-button-logout");
-        btnDangXuat.setPadding(new Insets(12, 20, 12, 20));
-
-        sidebar.getChildren().addAll(
-                header, sep1, nav, spacer, sep2, btnDangXuat
-        );
-
-        // ── Active button list ──
-        List<Button> menuButtons = Arrays.asList(
-                btnTongQuan, btnQuanLySan, btnQuanLyGia,
-                btnQuanLyUuDai, btnQuanLyNhanVien, btnBaoCao, btnCaiDat
-        );
-        setActiveButton(btnTongQuan, menuButtons);
-
-        // ── Button actions ──
+        // Actions
         btnTongQuan.setOnAction(e -> {
             root.setCenter(createScrollableContent(TongQuanChuSanPage.createView()));
-            setActiveButton(btnTongQuan, menuButtons);
+            setActive(btnTongQuan, navBtns);
         });
         btnQuanLySan.setOnAction(e -> {
             root.setCenter(createScrollableContent(QuanLySanPage.createView()));
-            setActiveButton(btnQuanLySan, menuButtons);
+            setActive(btnQuanLySan, navBtns);
         });
         btnQuanLyGia.setOnAction(e -> {
             root.setCenter(createScrollableContent(QuanLyGiaPage.createView()));
-            setActiveButton(btnQuanLyGia, menuButtons);
+            setActive(btnQuanLyGia, navBtns);
         });
         btnQuanLyUuDai.setOnAction(e -> {
             root.setCenter(createScrollableContent(QuanLyUuDaiPage.createView()));
-            setActiveButton(btnQuanLyUuDai, menuButtons);
+            setActive(btnQuanLyUuDai, navBtns);
         });
         btnQuanLyNhanVien.setOnAction(e -> {
             root.setCenter(createScrollableContent(QuanLyNhanVienPage.createView()));
-            setActiveButton(btnQuanLyNhanVien, menuButtons);
+            setActive(btnQuanLyNhanVien, navBtns);
         });
         btnBaoCao.setOnAction(e -> {
             root.setCenter(createScrollableContent(BaoCaoPage.createView()));
-            setActiveButton(btnBaoCao, menuButtons);
+            setActive(btnBaoCao, navBtns);
         });
-        btnCaiDat.setOnAction(e -> setActiveButton(btnCaiDat, menuButtons));
         btnDangXuat.setOnAction(e -> {
             AppState.clear();
             AppNavigator.goTo(DangNhapPage.createScene(), "Đăng nhập");
@@ -154,38 +120,24 @@ public class ChuSanDashboardPage {
         return sidebar;
     }
 
-    // ────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
     //  HELPERS
-    // ────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
 
-    /** Nhãn section nhỏ (TỔng quan / Quản lý / Hệ thống) */
-    private static Label navSectionLabel(String text) {
-        Label lbl = new Label(text.toUpperCase());
-        lbl.getStyleClass().add("nav-section-label");
-        lbl.setMaxWidth(Double.MAX_VALUE);
-        return lbl;
-    }
-
-    /** Tạo menu button chuẩn */
-    private static Button createMenuButton(String text) {
+    private static Button navBtn(String text) {
         Button btn = new Button(text);
         btn.setMaxWidth(Double.MAX_VALUE);
-        btn.setPrefHeight(38);
-        btn.getStyleClass().add("menu-button");
-        // Đảm bảo text căn trái
+        btn.setPrefHeight(42);
         btn.setAlignment(Pos.CENTER_LEFT);
+        btn.getStyleClass().add("menu-button");
         return btn;
     }
 
-    /** Đổi active class cho menu button */
-    private static void setActiveButton(Button active, List<Button> all) {
-        for (Button b : all) {
-            b.getStyleClass().remove("menu-button-active");
-        }
+    private static void setActive(Button active, List<Button> all) {
+        all.forEach(b -> b.getStyleClass().remove("menu-button-active"));
         active.getStyleClass().add("menu-button-active");
     }
 
-    /** Bọc content trong ScrollPane */
     private static ScrollPane createScrollableContent(Node content) {
         ScrollPane sp = new ScrollPane(content);
         sp.setFitToWidth(true);

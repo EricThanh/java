@@ -2,6 +2,7 @@ package com.football.management.ui.auth;
 
 import com.football.management.app.AppNavigator;
 import com.football.management.app.AppState;
+import com.football.management.config.DBConnection;
 import com.football.management.ui.ChuSan.ChuSanDashboardPage;
 import com.football.management.ui.KhachHang.KhachHangHomePage;
 import com.football.management.ui.NhanVien.NhanVienDashboardPage;
@@ -11,6 +12,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import com.football.management.dao.TaiKhoanDAO;
 import com.football.management.model.TaiKhoan;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class DangNhapPage {
 
@@ -41,13 +46,12 @@ public class DangNhapPage {
 
         Hyperlink linkDangKy = new Hyperlink("Đăng ký");
         linkDangKy.getStyleClass().add("text-link");
-
         linkDangKy.setOnAction(e ->
                 AppNavigator.goTo(DangKyPage.createScene(), "Đăng ký")
         );
+
         Hyperlink linkQuenMatKhau = new Hyperlink("Quên mật khẩu?");
         linkQuenMatKhau.getStyleClass().add("text-link");
-
         linkQuenMatKhau.setOnAction(e ->
                 AppNavigator.goTo(QuenMatKhauPage.createScene(), "Quên mật khẩu")
         );
@@ -55,31 +59,6 @@ public class DangNhapPage {
         Label lblThongBao = new Label();
         lblThongBao.getStyleClass().add("error-text");
 
-//        btnDangNhap.setOnAction(e -> {
-//            String tenDangNhap = txtTenDangNhap.getText().trim();
-//            String matKhau = txtMatKhau.getText().trim();
-//            String vaiTro = cbVaiTro.getValue();
-//
-//            lblThongBao.setText("");
-//
-//            if (tenDangNhap.isEmpty() || matKhau.isEmpty() || vaiTro == null) {
-//                lblThongBao.setText("Vui long nhap day du thong tin");
-//                return;
-//            }
-//
-//            AppState.setTenNguoiDung(tenDangNhap);
-//            AppState.setVaiTro(vaiTro);
-//
-//            switch (vaiTro) {
-//                case "CHU_SAN" ->
-//                        AppNavigator.goTo(ChuSanDashboardPage.createScene(), "Chu san");
-//                case "NHAN_VIEN" ->
-//                        AppNavigator.goTo(NhanVienDashboardPage.createScene(), "Nhan vien");
-//                case "KHACH_HANG" ->
-//                        AppNavigator.goTo(KhachHangHomePage.createScene(), "Khach hang");
-//                default -> lblThongBao.setText("Vai tro khong hop le");
-//            }
-//        });
         btnDangNhap.setOnAction(e -> {
             String tenDangNhap = txtTenDangNhap.getText().trim();
             String matKhau = txtMatKhau.getText().trim();
@@ -101,19 +80,29 @@ public class DangNhapPage {
             }
 
             AppState.setTenNguoiDung(taiKhoan.getHoTen());
+            AppState.setMaTaiKhoan(taiKhoan.getMaTaiKhoan());
 
-            String vaiTroTuChon = vaiTro;
             int maVaiTro = taiKhoan.getMaVaiTro();
 
-            if (maVaiTro == 1 && "CHU_SAN".equals(vaiTroTuChon)) {
+            if (maVaiTro == 1 && "CHU_SAN".equals(vaiTro)) {
                 AppState.setVaiTro("CHU_SAN");
                 AppNavigator.goTo(ChuSanDashboardPage.createScene(), "Chủ sân");
-            } else if (maVaiTro == 2 && "NHAN_VIEN".equals(vaiTroTuChon)) {
+
+            } else if (maVaiTro == 2 && "NHAN_VIEN".equals(vaiTro)) {
                 AppState.setVaiTro("NHAN_VIEN");
                 AppNavigator.goTo(NhanVienDashboardPage.createScene(), "Nhân viên");
-            } else if (maVaiTro == 3 && "KHACH_HANG".equals(vaiTroTuChon)) {
+
+            } else if (maVaiTro == 3 && "KHACH_HANG".equals(vaiTro)) {
+                // Lấy maKhachHang từ DB rồi lưu vào AppState
+                int maKhachHang = layMaKhachHang(taiKhoan.getMaTaiKhoan());
+                if (maKhachHang <= 0) {
+                    lblThongBao.setText("Không tìm thấy thông tin khách hàng");
+                    return;
+                }
+                AppState.setMaKhachHang(maKhachHang);
                 AppState.setVaiTro("KHACH_HANG");
                 AppNavigator.goTo(KhachHangHomePage.createScene(), "Khách hàng");
+
             } else {
                 lblThongBao.setText("Vai trò chọn không khớp với tài khoản");
             }
@@ -145,5 +134,21 @@ public class DangNhapPage {
         );
 
         return scene;
+    }
+
+    private static int layMaKhachHang(int maTaiKhoan) {
+        String sql = "SELECT ma_khach_hang FROM khach_hang WHERE ma_tai_khoan = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maTaiKhoan);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("ma_khach_hang");
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return 0;
     }
 }

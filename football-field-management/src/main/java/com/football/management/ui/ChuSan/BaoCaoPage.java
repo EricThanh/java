@@ -12,13 +12,29 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
+// Import thư viện iText
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Year;
 
 public class BaoCaoPage {
+
+    // Lưu trữ báo cáo hiện tại để có dữ liệu xuất ra file
+    private static BaoCaoTongQuan currentBaoCao = null;
+    private static String currentTieuDe = "";
 
     public static Node createView() {
         BaoCaoDAO baoCaoDAO = new BaoCaoDAO();
@@ -63,21 +79,25 @@ public class BaoCaoPage {
         Button btnXemBaoCao = new Button("Xem báo cáo");
         btnXemBaoCao.getStyleClass().add("primary-button");
 
-        filterBar.getChildren().addAll(cbLoaiBaoCao, dpNgay, cbThang, cbNam, btnXemBaoCao);
+        // THÊM NÚT XUẤT PDF
+        Button btnXuatPdf = new Button("Xuất PDF");
+        btnXuatPdf.getStyleClass().add("secondary-button");
+
+        filterBar.getChildren().addAll(cbLoaiBaoCao, dpNgay, cbThang, cbNam, btnXemBaoCao, btnXuatPdf);
         filterCard.getChildren().addAll(lblFilterTitle, filterBar);
 
         VBox contentBox = new VBox(20);
 
         Runnable hienThiBaoCaoTheoNgay = () -> {
-            BaoCaoTongQuan baoCao = baoCaoDAO.layBaoCaoTheoNgay(dpNgay.getValue());
-            contentBox.getChildren().setAll(taoNoiDungBaoCao(baoCao, "Báo cáo theo ngày: " + dpNgay.getValue()));
+            currentBaoCao = baoCaoDAO.layBaoCaoTheoNgay(dpNgay.getValue());
+            currentTieuDe = "Báo cáo theo ngày: " + dpNgay.getValue();
+            contentBox.getChildren().setAll(taoNoiDungBaoCao(currentBaoCao, currentTieuDe));
         };
 
         Runnable hienThiBaoCaoTheoThang = () -> {
-            BaoCaoTongQuan baoCao = baoCaoDAO.layBaoCaoTheoThang(cbThang.getValue(), cbNam.getValue());
-            contentBox.getChildren().setAll(
-                    taoNoiDungBaoCao(baoCao, "Báo cáo theo tháng " + cbThang.getValue() + "/" + cbNam.getValue())
-            );
+            currentBaoCao = baoCaoDAO.layBaoCaoTheoThang(cbThang.getValue(), cbNam.getValue());
+            currentTieuDe = "Báo cáo theo tháng " + cbThang.getValue() + "/" + cbNam.getValue();
+            contentBox.getChildren().setAll(taoNoiDungBaoCao(currentBaoCao, currentTieuDe));
         };
 
         cbLoaiBaoCao.setOnAction(e -> {
@@ -104,6 +124,28 @@ public class BaoCaoPage {
                 }
             } catch (Exception ex) {
                 hienLoi(ex.getMessage());
+            }
+        });
+
+        // XỬ LÝ SỰ KIỆN XUẤT PDF
+        btnXuatPdf.setOnAction(e -> {
+            if (currentBaoCao == null) {
+                hienLoi("Không có dữ liệu báo cáo để xuất!");
+                return;
+            }
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Lưu báo cáo PDF");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+
+            String defaultFileName = "Theo ngày".equals(cbLoaiBaoCao.getValue())
+                    ? "BaoCao_" + dpNgay.getValue() + ".pdf"
+                    : "BaoCao_" + cbThang.getValue() + "_" + cbNam.getValue() + ".pdf";
+            fileChooser.setInitialFileName(defaultFileName);
+
+            File file = fileChooser.showSaveDialog(root.getScene().getWindow());
+            if (file != null) {
+                xuatFilePDF(currentBaoCao, currentTieuDe, file);
             }
         });
 
@@ -205,6 +247,84 @@ public class BaoCaoPage {
         return card;
     }
 
+    // PHƯƠNG THỨC XUẤT FILE PDF
+    private static void xuatFilePDF(BaoCaoTongQuan baoCao, String tieuDe, File file) {
+        try {
+            Document document = new Document();
+            PdfWriter.getInstance(document, new FileOutputStream(file));
+            document.open();
+
+            // Cấu hình font hỗ trợ tiếng Việt (Bạn cần copy một file font ttf vào thư mục dự án)
+            // Nếu không có file font, iText sẽ dùng font mặc định và bị lỗi hiển thị dấu tiếng Việt.
+            // Ví dụ ở đây sử dụng Arial, bạn có thể tải arial.ttf và để vào thư mục src/main/resources/fonts/
+            Font titleFont;
+            Font normalFont;
+            try {
+                // Thay đổi đường dẫn này trỏ tới file font tiếng Việt thực tế trong project của bạn
+                // BaseFont bf = BaseFont.createFont("src/main/resources/fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+
+                // Tạm thời dùng font mặc định nếu chưa cấu hình file .ttf
+                // Khuyên dùng: Mở comment block trên và thêm file font để tiếng Việt không bị lỗi font
+                titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
+                normalFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL);
+            } catch (Exception ex) {
+                titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+                normalFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+            }
+
+            // Thêm tiêu đề
+            Paragraph titlePr = new Paragraph("BAO CAO THONG KE", titleFont);
+            titlePr.setAlignment(Element.ALIGN_CENTER);
+            titlePr.setSpacingAfter(20);
+            document.add(titlePr);
+
+            Paragraph subTitlePr = new Paragraph(tieuDe, normalFont);
+            subTitlePr.setAlignment(Element.ALIGN_CENTER);
+            subTitlePr.setSpacingAfter(20);
+            document.add(subTitlePr);
+
+            // Tạo bảng thống kê
+            PdfPTable table = new PdfPTable(2);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+
+            // Thêm dữ liệu vào bảng
+            table.addCell(new Paragraph("Doanh thu:", normalFont));
+            table.addCell(new Paragraph(dinhDangTien(baoCao.getDoanhThu()), normalFont));
+
+            table.addCell(new Paragraph("Luot dat san:", normalFont));
+            table.addCell(new Paragraph(String.valueOf(baoCao.getLuotDatSan()), normalFont));
+
+            table.addCell(new Paragraph("So khach hang:", normalFont));
+            table.addCell(new Paragraph(String.valueOf(baoCao.getSoKhachHang()), normalFont));
+
+            table.addCell(new Paragraph("Tong so san:", normalFont));
+            table.addCell(new Paragraph(String.valueOf(baoCao.getTongSoSan()), normalFont));
+
+            table.addCell(new Paragraph("San dang su dung:", normalFont));
+            table.addCell(new Paragraph(String.valueOf(baoCao.getSoSanDangSuDung()), normalFont));
+
+            table.addCell(new Paragraph("Tan suat su dung:", normalFont));
+            table.addCell(new Paragraph(dinhDangPhanTram(baoCao.getTanSuatSuDung()), normalFont));
+
+            document.add(table);
+
+            // Chi tiết thời gian
+            Paragraph thoiGian = new Paragraph(
+                    "Khoang thoi gian: " + baoCao.getTuNgay() + " den " + baoCao.getDenNgay(), normalFont);
+            thoiGian.setSpacingBefore(20);
+            document.add(thoiGian);
+
+            document.close();
+
+            hienThongBao("Thành công", "Xuất báo cáo PDF thành công:\n" + file.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+            hienLoi("Đã xảy ra lỗi khi xuất file PDF: " + e.getMessage());
+        }
+    }
+
     private static String dinhDangTien(BigDecimal soTien) {
         if (soTien == null) {
             return "0 VND";
@@ -221,6 +341,15 @@ public class BaoCaoPage {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText(null);
         alert.setTitle("Lỗi");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    // Thêm hàm hiển thị thông báo thành công
+    private static void hienThongBao(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setTitle(title);
         alert.setContentText(message);
         alert.showAndWait();
     }
