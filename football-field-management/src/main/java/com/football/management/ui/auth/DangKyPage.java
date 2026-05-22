@@ -15,26 +15,26 @@ import java.time.LocalDateTime;
 public class DangKyPage {
 
     public static Scene createScene() {
-        Label lblLogo = new Label("Quan ly san bong");
+        Label lblLogo = new Label("QUẢN LÝ SÂN BÓNG");
         lblLogo.getStyleClass().add("app-logo");
 
-        Label lblTieuDe = new Label("Dang ky tai khoan khach hang");
+        Label lblTieuDe = new Label("ĐĂNG KÝ");
         lblTieuDe.getStyleClass().add("login-title");
 
-        Label lblMoTa = new Label("Tao tai khoan de dat san, thanh toan va theo doi lich su");
+        Label lblMoTa = new Label("Tạo tài khoản để đặt sân, thanh toán và theo dõi lịch sử");
         lblMoTa.getStyleClass().add("login-subtitle");
         lblMoTa.setWrapText(true);
 
         TextField txtHoTen = new TextField();
-        txtHoTen.setPromptText("Ho ten");
+        txtHoTen.setPromptText("Họ tên");
         txtHoTen.getStyleClass().add("input-field");
 
         TextField txtTenDangNhap = new TextField();
-        txtTenDangNhap.setPromptText("Ten dang nhap");
+        txtTenDangNhap.setPromptText("Tên đăng nhập");
         txtTenDangNhap.getStyleClass().add("input-field");
 
         PasswordField txtMatKhau = new PasswordField();
-        txtMatKhau.setPromptText("Mat khau");
+        txtMatKhau.setPromptText("Mật khẩu");
         txtMatKhau.getStyleClass().add("input-field");
 
         TextField txtEmail = new TextField();
@@ -42,31 +42,31 @@ public class DangKyPage {
         txtEmail.getStyleClass().add("input-field");
 
         TextField txtSoDienThoai = new TextField();
-        txtSoDienThoai.setPromptText("So dien thoai");
+        txtSoDienThoai.setPromptText("Số điện thoại");
         txtSoDienThoai.getStyleClass().add("input-field");
 
         TextField txtDiaChi = new TextField();
-        txtDiaChi.setPromptText("Dia chi");
+        txtDiaChi.setPromptText("Địa chỉ");
         txtDiaChi.getStyleClass().add("input-field");
 
         ComboBox<String> cbGioiTinh = new ComboBox<>();
-        cbGioiTinh.getItems().addAll("NAM", "NU", "KHAC");
-        cbGioiTinh.setPromptText("Gioi tinh");
+        cbGioiTinh.getItems().addAll("Nam", "Nữ", "Khác");
+        cbGioiTinh.setPromptText("Giới tính");
         cbGioiTinh.getStyleClass().add("input-field");
         cbGioiTinh.setMaxWidth(Double.MAX_VALUE);
 
-        Button btnDangKy = new Button("Dang ky");
+        Button btnDangKy = new Button("Đăng ký");
         btnDangKy.getStyleClass().add("primary-button");
         btnDangKy.setMaxWidth(Double.MAX_VALUE);
 
-        Hyperlink linkDangNhap = new Hyperlink("Da co tai khoan? Dang nhap");
+        Hyperlink linkDangNhap = new Hyperlink("Đã có tài khoản? Đăng nhập");
         linkDangNhap.getStyleClass().add("text-link");
 
         Label lblThongBao = new Label();
         lblThongBao.getStyleClass().add("error-text");
 
         linkDangNhap.setOnAction(e ->
-                AppNavigator.goTo(DangNhapPage.createScene(), "Dang nhap")
+                AppNavigator.goTo(DangNhapPage.createScene(), "Đăng nhập")
         );
 
         btnDangKy.setOnAction(e -> {
@@ -78,19 +78,28 @@ public class DangKyPage {
             String email = txtEmail.getText().trim();
             String soDienThoai = txtSoDienThoai.getText().trim();
             String diaChi = txtDiaChi.getText().trim();
-            String gioiTinh = cbGioiTinh.getValue();
+            String gioiTinhChon = cbGioiTinh.getValue();
 
             if (hoTen.isEmpty() || tenDangNhap.isEmpty() || matKhau.isEmpty()
-                    || email.isEmpty() || soDienThoai.isEmpty() || gioiTinh == null) {
-                lblThongBao.setText("Vui long nhap day du thong tin");
+                    || email.isEmpty() || soDienThoai.isEmpty() || gioiTinhChon == null) {
+                lblThongBao.setText("Vui lòng nhập đầy đủ thông tin");
                 return;
+            }
+
+            String gioiTinh;
+            if ("Nam".equals(gioiTinhChon)) {
+                gioiTinh = "NAM";
+            } else if ("Nữ".equals(gioiTinhChon)) {
+                gioiTinh = "NU";
+            } else {
+                gioiTinh = "KHAC";
             }
 
             TaiKhoanDAO taiKhoanDAO = new TaiKhoanDAO();
             KhachHangDAO khachHangDAO = new KhachHangDAO();
 
             if (taiKhoanDAO.tonTaiTenDangNhap(tenDangNhap)) {
-                lblThongBao.setText("Ten dang nhap da ton tai");
+                lblThongBao.setText("Tên đăng nhập đã tồn tại");
                 return;
             }
 
@@ -108,7 +117,7 @@ public class DangKyPage {
             int maTaiKhoan = taiKhoanDAO.themTaiKhoanVaLayMa(taiKhoan);
 
             if (maTaiKhoan <= 0) {
-                lblThongBao.setText("Dang ky that bai o buoc tao tai khoan");
+                lblThongBao.setText("Đăng ký thất bại ở bước tạo tài khoản");
                 return;
             }
 
@@ -123,21 +132,21 @@ public class DangKyPage {
             boolean themKhachHang = khachHangDAO.themKhachHang(khachHang);
 
             if (!themKhachHang) {
-                lblThongBao.setText("Dang ky that bai o buoc tao khach hang");
+                lblThongBao.setText("Đăng ký thất bại ở bước tạo khách hàng");
                 return;
             }
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Thong bao");
+            alert.setTitle("Thông báo");
             alert.setHeaderText(null);
-            alert.setContentText("Dang ky thanh cong. Moi ban dang nhap.");
+            alert.setContentText("Đăng ký thành công. Mời bạn đăng nhập.");
             alert.showAndWait();
 
-            AppNavigator.goTo(DangNhapPage.createScene(), "Dang nhap");
+            AppNavigator.goTo(DangNhapPage.createScene(), "Đăng nhập");
         });
 
         VBox card = new VBox(
-                14,
+                16,
                 lblLogo,
                 lblTieuDe,
                 lblMoTa,
@@ -152,9 +161,11 @@ public class DangKyPage {
                 linkDangNhap,
                 lblThongBao
         );
+
         card.setAlignment(Pos.CENTER);
         card.getStyleClass().add("login-card");
-        card.setMaxWidth(440);
+        card.setMaxWidth(720);
+        card.setMinWidth(680);
 
         VBox root = new VBox(card);
         root.setAlignment(Pos.CENTER);
