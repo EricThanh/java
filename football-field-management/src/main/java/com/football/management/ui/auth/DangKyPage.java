@@ -15,15 +15,20 @@ import java.time.LocalDateTime;
 public class DangKyPage {
 
     public static Scene createScene() {
-        Label lblLogo = new Label("Quản lý sân bóng");
+        // ── Logo & tiêu đề ──────────────────────────────────────────────────
+        Label lblLogo = new Label("QUẢN LÝ SÂN BÓNG");
         lblLogo.getStyleClass().add("app-logo");
 
-        Label lblTieuDe = new Label("Đăng ký tài khoản ");
+        Label lblTieuDe = new Label("ĐĂNG KÝ");
         lblTieuDe.getStyleClass().add("login-title");
-        lblTieuDe.setWrapText(true);
-        lblTieuDe.setMaxWidth(360);
+        lblTieuDe.setMaxWidth(Double.MAX_VALUE);
+        lblTieuDe.setAlignment(Pos.CENTER);
 
+        Label lblMoTa = new Label("Tạo tài khoản để đặt sân, thanh toán và theo dõi lịch sử");
+        lblMoTa.getStyleClass().add("login-subtitle");
+        lblMoTa.setWrapText(true);
 
+        // ── Các trường nhập liệu ────────────────────────────────────────────
         TextField txtHoTen = new TextField();
         txtHoTen.setPromptText("Họ tên");
         txtHoTen.getStyleClass().add("input-field");
@@ -49,43 +54,49 @@ public class DangKyPage {
         txtDiaChi.getStyleClass().add("input-field");
 
         ComboBox<String> cbGioiTinh = new ComboBox<>();
-        cbGioiTinh.getItems().addAll("NAM", "NU", "KHAC");
+        cbGioiTinh.getItems().addAll("Nam", "Nữ", "Khác");
         cbGioiTinh.setPromptText("Giới tính");
         cbGioiTinh.getStyleClass().add("input-field");
         cbGioiTinh.setMaxWidth(Double.MAX_VALUE);
 
+        // ── Nút & liên kết ──────────────────────────────────────────────────
         Button btnDangKy = new Button("Đăng ký");
         btnDangKy.getStyleClass().add("primary-button");
         btnDangKy.setMaxWidth(Double.MAX_VALUE);
 
         Hyperlink linkDangNhap = new Hyperlink("Đã có tài khoản? Đăng nhập");
         linkDangNhap.getStyleClass().add("text-link");
+        linkDangNhap.setOnAction(e ->
+                AppNavigator.goTo(DangNhapPage.createScene(), "Đăng nhập")
+        );
 
         Label lblThongBao = new Label();
         lblThongBao.getStyleClass().add("error-text");
 
-        linkDangNhap.setOnAction(e ->
-                AppNavigator.goTo(DangNhapPage.createScene(), "Dang nhap")
-        );
-
+        // ── Xử lý đăng ký ──────────────────────────────────────────────────
         btnDangKy.setOnAction(e -> {
             lblThongBao.setText("");
 
-            String hoTen = txtHoTen.getText().trim();
-            String tenDangNhap = txtTenDangNhap.getText().trim();
-            String matKhau = txtMatKhau.getText().trim();
-            String email = txtEmail.getText().trim();
-            String soDienThoai = txtSoDienThoai.getText().trim();
-            String diaChi = txtDiaChi.getText().trim();
-            String gioiTinh = cbGioiTinh.getValue();
+            String hoTen        = txtHoTen.getText().trim();
+            String tenDangNhap  = txtTenDangNhap.getText().trim();
+            String matKhau      = txtMatKhau.getText().trim();
+            String email        = txtEmail.getText().trim();
+            String soDienThoai  = txtSoDienThoai.getText().trim();
+            String diaChi       = txtDiaChi.getText().trim();
+            String gioiTinhChon = cbGioiTinh.getValue();
 
             if (hoTen.isEmpty() || tenDangNhap.isEmpty() || matKhau.isEmpty()
-                    || email.isEmpty() || soDienThoai.isEmpty() || gioiTinh == null) {
+                    || email.isEmpty() || soDienThoai.isEmpty() || gioiTinhChon == null) {
                 lblThongBao.setText("Vui lòng nhập đầy đủ thông tin");
                 return;
             }
 
-            TaiKhoanDAO taiKhoanDAO = new TaiKhoanDAO();
+            String gioiTinh;
+            if ("Nam".equals(gioiTinhChon))      gioiTinh = "NAM";
+            else if ("Nữ".equals(gioiTinhChon))  gioiTinh = "NU";
+            else                                  gioiTinh = "KHAC";
+
+            TaiKhoanDAO taiKhoanDAO   = new TaiKhoanDAO();
             KhachHangDAO khachHangDAO = new KhachHangDAO();
 
             if (taiKhoanDAO.tonTaiTenDangNhap(tenDangNhap)) {
@@ -99,15 +110,14 @@ public class DangKyPage {
             taiKhoan.setHoTen(hoTen);
             taiKhoan.setEmail(email);
             taiKhoan.setSoDienThoai(soDienThoai);
-            taiKhoan.setMaVaiTro(3); // KHACH_HANG
+            taiKhoan.setMaVaiTro(3);
             taiKhoan.setTrangThaiTaiKhoan("HOAT_DONG");
             taiKhoan.setNgayTao(LocalDateTime.now());
             taiKhoan.setNgayCapNhat(LocalDateTime.now());
 
             int maTaiKhoan = taiKhoanDAO.themTaiKhoanVaLayMa(taiKhoan);
-
             if (maTaiKhoan <= 0) {
-                lblThongBao.setText("Dang ky that bai o buoc tao tai khoan");
+                lblThongBao.setText("Đăng ký thất bại ở bước tạo tài khoản");
                 return;
             }
 
@@ -120,25 +130,26 @@ public class DangKyPage {
             khachHang.setNgayTao(LocalDateTime.now());
 
             boolean themKhachHang = khachHangDAO.themKhachHang(khachHang);
-
             if (!themKhachHang) {
-                lblThongBao.setText("Dang ky that bai o buoc tao khach hang");
+                lblThongBao.setText("Đăng ký thất bại ở bước tạo khách hàng");
                 return;
             }
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Thong bao");
+            alert.setTitle("Thông báo");
             alert.setHeaderText(null);
-            alert.setContentText("Đăng ký thành công");
+            alert.setContentText("Đăng ký thành công. Mời bạn đăng nhập.");
             alert.showAndWait();
 
-            AppNavigator.goTo(DangNhapPage.createScene(), "Dang nhap");
+            AppNavigator.goTo(DangNhapPage.createScene(), "Đăng nhập");
         });
 
+        // ── Layout ──────────────────────────────────────────────────────────
         VBox card = new VBox(
-                14,
+                10,           // spacing nhỏ hơn để card vừa màn hình
                 lblLogo,
                 lblTieuDe,
+                lblMoTa,
                 txtHoTen,
                 txtTenDangNhap,
                 txtMatKhau,
@@ -152,13 +163,17 @@ public class DangKyPage {
         );
         card.setAlignment(Pos.CENTER);
         card.getStyleClass().add("login-card");
-        card.setMaxWidth(440);
+        card.getStyleClass().add("login-card--register"); // override padding riêng
+        card.setMaxWidth(720);
+        card.setMinWidth(680);
 
         VBox root = new VBox(card);
         root.setAlignment(Pos.CENTER);
         root.getStyleClass().add("page-root");
 
-        Scene scene = new Scene(root, 1100, 760);
+        Scene scene = new Scene(root, 1100, 900); // cao hơn để đủ chỗ
+        root.prefHeightProperty().bind(scene.heightProperty());
+
         scene.getStylesheets().add(
                 DangKyPage.class.getResource("/css/login.css").toExternalForm()
         );
