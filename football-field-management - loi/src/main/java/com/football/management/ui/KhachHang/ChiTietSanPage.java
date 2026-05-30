@@ -1,0 +1,214 @@
+package com.football.management.ui.KhachHang;
+
+import com.football.management.app.AppState;
+import com.football.management.dao.KhachHangDatSanDAO.SanKhachHangRow;
+import com.football.management.dao.SanYeuThichDAO;
+
+import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
+import java.time.LocalDate;
+import java.util.function.Consumer;
+
+public class ChiTietSanPage {
+        @FunctionalInterface
+    public interface DatSanCallback {
+        void accept(SanKhachHangRow san, LocalDate ngayDat, String gioBD, String gioKT);
+    }   
+
+    /**
+     * @param san       Sân được chọn từ DanhSachSanPage
+     * @param onDatSan  Callback để navigate sang DatSanPage
+     */
+    public static Node createView(SanKhachHangRow san,
+                              LocalDate ngayDat,
+                              String gioBD,
+                              String gioKT,
+                              DatSanCallback onDatSan) {
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(24));
+        root.getStyleClass().add("content-root");
+
+        // ===== NULL CHECK =====
+        if (san == null) {
+            root.getChildren().add(new Label("Vui lòng chọn sân từ danh sách."));
+            return root;
+        }
+
+        // ===== TITLE =====
+        Label lblTitle = new Label("Chi tiết sân");
+        lblTitle.getStyleClass().add("page-title");
+
+        Label lblSubtitle = new Label("Thông tin chi tiết của sân được chọn");
+        lblSubtitle.getStyleClass().add("section-subtitle");
+
+        // ===== CARD =====
+        VBox card = new VBox(12);
+        card.getStyleClass().add("card");
+
+        // ===== TÊN SÂN =====
+        Label lblTenSan = new Label(san.getMaSanCode() + " – " + san.getTenSan());
+        lblTenSan.getStyleClass().add("section-title");
+
+        // ===== TRẠNG THÁI =====
+        // Xác định sân có nằm trong diện hoạt động bình thường hay không
+        boolean coTheDatSan = "SAN_SANG".equals(san.getTrangThaiSan()) ||
+                "DANG_SU_DUNG".equals(san.getTrangThaiSan());
+
+        // Hiển thị chữ "Đang hoạt động" thân thiện với Khách hàng
+        String trangThaiHienThi = switch (san.getTrangThaiSan() == null ? "" : san.getTrangThaiSan()) {
+            case "SAN_SANG", "DANG_SU_DUNG" -> "Đang hoạt động";
+            case "BAO_TRI" -> "Bảo trì";
+            case "NGUNG_HOAT_DONG" -> "Ngừng hoạt động";
+            default -> san.getTrangThaiSan();
+        };
+
+        // ===== GIỜ MỞ CỬA =====
+        String gioMo = san.getGioMoCua() == null ? "" : san.getGioMoCua();
+        String gioDong = san.getGioDongCua() == null ? "" : san.getGioDongCua();
+        String gioCua = (gioMo.isEmpty() && gioDong.isEmpty()) ? "Chưa cập nhật" : gioMo + " - " + gioDong;
+
+        // ===== VỊ TRÍ =====
+        String viTri = san.getViTri() == null || san.getViTri().isBlank() ? "Chưa cập nhật" : san.getViTri();
+
+        // ===== NGÀY/GIỜ KHÁCH ĐÃ CHỌN TỪ DANH SÁCH SÂN =====
+String khungGioKhachChon = "Chưa chọn";
+if (ngayDat != null && gioBD != null && gioKT != null) {
+    khungGioKhachChon = ngayDat + " | " + gioBD + " - " + gioKT;
+}
+
+        // ===== NỘI DUNG =====
+// Tách từng dòng thành Label riêng để chữ rõ, đẹp và có dấu đầy đủ.
+VBox boxThongTin = new VBox(8);
+
+boxThongTin.getChildren().addAll(
+        taoDongThongTin("Loại sân", san.getTenLoaiSan()),
+        taoDongThongTin("Giá/giờ", san.getGiaHienThi()),
+        taoDongThongTin("Khung giờ", khungGioKhachChon),
+        taoDongThongTin("Vị trí", viTri),
+        taoDongThongTin("Trạng thái", trangThaiHienThi),
+        taoDongThongTin("Mở cửa", gioCua)
+);
+
+        // ===== ACTIONS =====
+        HBox actions = new HBox(10);
+
+        // ===== BUTTON ĐẶT SÂN =====
+        Button btnDatSan = new Button("Đặt sân");
+        btnDatSan.getStyleClass().add("primary-button");
+        // Chỉ ẩn/khóa nút khi sân không thuộc diện có thể đặt (Bảo trì/Ngừng hoạt động)
+        btnDatSan.setDisable(!coTheDatSan);
+
+        // ===== BUTTON YÊU THÍCH =====
+        Button btnYeuThich = new Button("Thêm yêu thích");
+        btnYeuThich.getStyleClass().add("light-button");
+
+        // ===== BUTTON QUAY LẠI =====
+        Button btnQuayLai = new Button("← Quay lại");
+        btnQuayLai.getStyleClass().add("light-button");
+
+        // ===== ACTION ĐẶT SÂN =====
+        btnDatSan.setOnAction(e -> {
+            if (!coTheDatSan) {
+                new Alert(Alert.AlertType.WARNING, "Sân hiện đang bảo trì hoặc ngừng hoạt động. Vui lòng chọn sân khác!").showAndWait();
+                return;
+            }
+            if (onDatSan != null) {
+    onDatSan.accept(san, ngayDat, gioBD, gioKT);
+}
+        });
+
+        // ===== ACTION YÊU THÍCH =====
+        btnYeuThich.setOnAction(e -> {
+            btnYeuThich.setDisable(true);
+            Thread t = new Thread(() -> {
+                try {
+                    SanYeuThichDAO dao = new SanYeuThichDAO();
+                    boolean ok = dao.themYeuThich(AppState.getMaKhachHang(), san.getMaSan());
+
+                    Platform.runLater(() -> {
+                        if (ok) {
+                            btnYeuThich.setText("Đã yêu thích ♥");
+                            btnYeuThich.setDisable(true);
+                        } else {
+                            new Alert(Alert.AlertType.INFORMATION, "Sân đã có trong danh sách yêu thích.").showAndWait();
+                            btnYeuThich.setDisable(false);
+                        }
+                    });
+                } catch (Exception ex) {
+                    Platform.runLater(() -> {
+                        new Alert(Alert.AlertType.ERROR, "Lỗi thêm yêu thích: " + ex.getMessage()).showAndWait();
+                        btnYeuThich.setDisable(false);
+                    });
+                }
+            });
+            t.setDaemon(true);
+            t.start();
+        });
+
+        // ===== ACTION QUAY LẠI =====
+        btnQuayLai.setOnAction(e -> {
+            // Nếu dùng HomePage dynamic content thì callback navigate ngoài xử lý.
+            root.getScene().getWindow().hide();
+        });
+
+        // ===== ADD UI ELEMENTS =====
+        actions.getChildren().addAll(btnDatSan, btnYeuThich, btnQuayLai);
+        card.getChildren().addAll(lblTenSan, boxThongTin, actions);
+        root.getChildren().addAll(lblTitle, lblSubtitle, card);
+
+        return root;
+    }
+
+    private static HBox taoDongThongTin(String tieuDe, String noiDung) {
+    HBox row = new HBox(12);
+    row.setAlignment(Pos.CENTER_LEFT);
+
+    Label lblTieuDe = new Label(tieuDe + ":");
+    lblTieuDe.setMinWidth(100);
+    lblTieuDe.setStyle(
+            "-fx-font-family: 'Segoe UI';" +
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 700;" +
+            "-fx-text-fill: #374151;"
+    );
+
+    Label lblNoiDung = new Label(
+            noiDung == null || noiDung.isBlank() ? "Chưa cập nhật" : noiDung
+    );
+    lblNoiDung.setStyle(
+            "-fx-font-family: 'Segoe UI';" +
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-text-fill: #111827;"
+    );
+
+    row.getChildren().addAll(lblTieuDe, lblNoiDung);
+    return row;
+}
+
+    /**
+ * Giữ lại cách gọi cũ: ChiTietSanPage.createView(san, callback)
+ */
+public static Node createView(SanKhachHangRow san, Consumer<SanKhachHangRow> onDatSanCu) {
+    return createView(san, null, null, null, (sanChon, ngayDat, gioBD, gioKT) -> {
+        if (onDatSanCu != null) {
+            onDatSanCu.accept(sanChon);
+        }
+    });
+}
+
+/**
+ * Overload không callback
+ */
+public static Node createView(SanKhachHangRow san) {
+    return createView(san, null, null, null, null);
+}
+}
