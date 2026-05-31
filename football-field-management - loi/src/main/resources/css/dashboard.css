@@ -708,3 +708,33 @@
 .time-combo-box:focused {
     -fx-border-color: #0f4c3a;
 }
+
+.filter-bar {
+    -fx-padding: 4px 0 18px 0;
+}
+
+.filter-label {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #374151;
+}
+
+.filter-bar .text-field,
+.filter-bar .combo-box,
+.filter-bar .date-picker {
+    -fx-background-color: white;
+    -fx-background-radius: 14px;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 14px;
+    -fx-border-width: 1px;
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.filter-bar .text-field:focused,
+.filter-bar .combo-box:focused,
+.filter-bar .date-picker:focused {
+    -fx-border-color: #0f513f;
+    -fx-border-width: 1.5px;
+}
