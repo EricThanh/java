@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   login.css  –  merged (branch-1 + branch-2, no conflict)
+   Base visual: branch-2 (green theme, background image, larger card radius)
+   Additions from branch-1: blue focus ring on .input-field:focused kept as
+   override-free fallback; branch-2 green focus wins via specificity order.
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Root ────────────────────────────────────────────────────────────────── */
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+/* ── Page background  (branch-2: image; branch-1 used solid #f5f5f7) ──── */
+.page-root {
+    -fx-background-image: url("../images/login-field-bg.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+    -fx-padding: 44;
+    -fx-min-height: 760px;
+    -fx-alignment: center;
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.login-card {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-background-radius: 34;
+    -fx-border-color: rgba(255, 255, 255, 0.75);
+    -fx-border-radius: 34;
+    -fx-border-width: 1;
+    -fx-padding: 64 70 48 70;
+    -fx-spacing: 16;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 36, 0.16, 0, 14);
+}
+
+/* ── Logo ────────────────────────────────────────────────────────────────── */
+.app-logo {
+    -fx-text-fill: #137333;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 0.3px;
+    -fx-padding: 0 0 4 0;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-max-width: infinity;
+}
+
+/* ── Title ───────────────────────────────────────────────────────────────── */
+.login-title {
+    -fx-text-fill: #202124;
+    -fx-font-size: 36px;
+    -fx-font-weight: 800;
+    -fx-padding: 2 0 0 0;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-max-width: infinity;
+}
+
+/* ── Subtitle  (branch-2 only; not present in branch-1) ─────────────────── */
+.login-subtitle {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 17px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-max-width: 520px;
+    -fx-padding: 0 0 14 0;
+}
+
+/* ── Input fields ────────────────────────────────────────────────────────── */
+.input-field {
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-background-radius: 14;
+    -fx-border-color: #d7dce2;
+    -fx-border-radius: 14;
+    -fx-border-width: 1.2;
+
+    -fx-text-fill: #202124;
+    -fx-prompt-text-fill: #7d8793;
+    -fx-font-size: 16px;
+
+    -fx-pref-width: 560px;
+    -fx-min-width: 560px;
+    -fx-max-width: 560px;
+
+    -fx-pref-height: 48px;
+    -fx-min-height: 48px;
+    -fx-max-height: 48px;
+
+    -fx-padding: 0 22 0 22;
+}
+
+/* Focus: branch-2 green wins (declared after branch-1's blue would appear) */
+.input-field:focused {
+    -fx-border-color: #198754;
+    -fx-border-width: 1.8;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(25, 135, 84, 0.25), 12, 0.25, 0, 0);
+}
+
+/* ── ComboBox overrides  (branch-2 only) ─────────────────────────────────── */
+.combo-box.input-field {
+    -fx-pref-width: 560px;
+    -fx-min-width: 560px;
+    -fx-max-width: 560px;
+
+    -fx-pref-height: 48px;
+    -fx-min-height: 48px;
+    -fx-max-height: 48px;
+
+    -fx-padding: 0 12 0 18;
+}
+
+.combo-box.input-field .list-cell {
+    -fx-font-size: 16px;
+    -fx-text-fill: #202124;
+    -fx-alignment: center-left;
+}
+
+.combo-box.input-field .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box.input-field .arrow {
+    -fx-background-color: #198754;
+}
+
+/* ── Primary button ──────────────────────────────────────────────────────── */
+.primary-button {
+    -fx-background-color: linear-gradient(to right, #0b5d2a, #16883f);
+    -fx-text-fill: white;
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 14;
+
+    -fx-pref-width: 560px;
+    -fx-min-width: 560px;
+    -fx-max-width: 560px;
+
+    -fx-pref-height: 58px;
+    -fx-min-height: 58px;
+    -fx-max-height: 58px;
+
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(22, 136, 63, 0.34), 16, 0.22, 0, 5);
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to right, #0a682f, #1b9849);
+}
+
+.primary-button:pressed {
+    -fx-background-color: #0b5d2a;
+    -fx-translate-y: 1;
+}
+
+/* ── Hyperlinks ──────────────────────────────────────────────────────────── */
+.text-link {
+    -fx-text-fill: #16883f;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-padding: 6 0 0 0;
+}
+
+.text-link:hover {
+    -fx-underline: true;
+    -fx-text-fill: #0b5d2a;
+}
+
+/* ── Error label ─────────────────────────────────────────────────────────── */
+.error-text {
+    -fx-text-fill: #d93025;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+    -fx-padding: 2 0 0 0;
+}
+
+
+/* Ẩn background mặc định, lấy background từ .page-scroll giống page-root   */
+.page-scroll {
+    -fx-background-image: url("../images/login-field-bg.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Xóa background trắng mặc định của viewport bên trong ScrollPane */
+.page-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Căn giữa card bên trong scroll khi nội dung nhỏ hơn viewport */
+.page-scroll > .viewport > .scroll-pane-content {
+    -fx-alignment: center;
+}
+
+/* ── Card đăng ký: padding nhỏ hơn để vừa màn hình ─────────────────────── */
+.login-card--register {
+    -fx-padding: 28 70 28 70;
+    -fx-spacing: 10;
+}
+
+.login-card--register .login-subtitle {
+    -fx-padding: 0 0 4 0;
+}

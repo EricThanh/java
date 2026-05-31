@@ -1,0 +1,740 @@
+/* ============================================================
+   dashboard.css  –  Football Management App
+   Style: Teal sidebar, white cards, bold typography
+   ============================================================ */
+
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-background-color: #f4f6f8;
+}
+
+/* ====================================================
+   FONT CHUNG - HỖ TRỢ TIẾNG VIỆT ĐẸP HƠN
+   ==================================================== */
+.label,
+.button,
+.text-field,
+.password-field,
+.combo-box,
+.date-picker,
+.table-view,
+.table-cell,
+.table-column,
+.list-cell,
+.check-box,
+.radio-button {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+/* Chữ nội dung thường */
+.label {
+    -fx-font-smoothing-type: lcd;
+}
+
+/* Text trong ComboBox */
+.combo-box .list-cell {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* Text trong DatePicker */
+.date-picker .text-field {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* Text trong bảng */
+.table-view .table-cell {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: #111827;
+}
+
+/* Header của bảng */
+.table-view .column-header .label {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1f2937;
+}
+
+/* Placeholder giữa bảng, ví dụ: Không có sân trống */
+.table-view .placeholder .label {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #6b7280;
+}
+
+/* ====================================================
+   LAYOUT TỔNG
+   ==================================================== */
+.page-root {
+    -fx-background-color: #f4f6f8;
+}
+
+.content-root {
+    -fx-background-color: #f4f6f8;
+    -fx-padding: 28;
+    -fx-spacing: 20;
+}
+
+/* ====================================================
+   SIDEBAR – xanh teal đậm
+   ==================================================== */
+.sidebar {
+    -fx-background-color: #0f4c3a;
+    -fx-padding: 24 16 24 16;
+    -fx-spacing: 6;
+    -fx-pref-width: 240;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.sidebar-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 26px;
+    -fx-font-weight: 800;
+}
+
+.sidebar-subtitle {
+    -fx-text-fill: rgba(255, 255, 255, 0.60);
+    -fx-font-size: 13px;
+    -fx-padding: 0 0 14 0;
+}
+
+/* Avatar */
+.sidebar-avatar {
+    -fx-background-color: rgba(255, 255, 255, 0.20);
+    -fx-background-radius: 999;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-width: 40px;
+    -fx-max-height: 40px;
+    -fx-pref-width: 40px;
+    -fx-pref-height: 40px;
+    -fx-alignment: center;
+}
+
+/* Section label nav */
+.nav-section-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.35);
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-padding: 10 0 4 4;
+}
+
+/* ====================================================
+   MENU BUTTONS
+   ==================================================== */
+.menu-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.75);
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 10;
+    -fx-padding: 11 14 11 14;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-pref-width: 10000;
+}
+
+.menu-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-text-fill: #ffffff;
+}
+
+.menu-button-active {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 700;
+    -fx-border-color: transparent transparent transparent rgba(255,255,255,0.7);
+    -fx-border-width: 0 0 0 3;
+}
+
+.menu-button-active:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.22);
+}
+
+.menu-button-logout {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.55);
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 10;
+    -fx-padding: 11 14 11 14;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-pref-width: 10000;
+}
+
+.menu-button-logout:hover {
+    -fx-background-color: rgba(255, 100, 100, 0.18);
+    -fx-text-fill: #fca5a5;
+}
+
+/* ====================================================
+   TOPBAR
+   ==================================================== */
+.topbar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 16 28 16 28;
+    -fx-spacing: 10;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.topbar-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.count-badge {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 999;
+    -fx-padding: 3 12 3 12;
+}
+
+/* ====================================================
+   TIÊU ĐỀ TRANG
+   ==================================================== */
+.page-title {
+    -fx-text-fill: #111827;
+    -fx-font-size: 30px;
+    -fx-font-weight: 800;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.section-title {
+    -fx-text-fill: #111827;
+    -fx-font-size: 17px;
+    -fx-font-weight: 800;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.section-subtitle {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+/* ====================================================
+   STAT CARDS
+   ==================================================== */
+.stat-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-border-color: #e9ecef;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-padding: 20 22 20 22;
+    -fx-spacing: 8;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.07), 16, 0.12, 0, 4);
+}
+
+.stat-label {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.stat-value {
+    -fx-text-fill: #0f4c3a;
+    -fx-font-size: 30px;
+    -fx-font-weight: 800;
+}
+
+.stat-desc {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 12px;
+}
+
+.stat-delta-up   { -fx-text-fill: #059669; -fx-font-size: 12px; -fx-font-weight: 600; }
+.stat-delta-down { -fx-text-fill: #dc2626; -fx-font-size: 12px; -fx-font-weight: 600; }
+
+/* Icon wrapper trong stat card */
+.stat-icon-blue   { -fx-background-color: #dbeafe; -fx-background-radius: 10; }
+.stat-icon-green  { -fx-background-color: #d1fae5; -fx-background-radius: 10; }
+.stat-icon-amber  { -fx-background-color: #fef3c7; -fx-background-radius: 10; }
+.stat-icon-red    { -fx-background-color: #fee2e2; -fx-background-radius: 10; }
+.stat-icon-teal   { -fx-background-color: #ccfbf1; -fx-background-radius: 10; }
+
+/* ====================================================
+   CARD / PANEL CHUNG
+   ==================================================== */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-border-color: #e9ecef;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-padding: 22;
+    -fx-spacing: 14;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.07), 16, 0.12, 0, 4);
+}
+
+.soft-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-color: #e9ecef;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 16;
+    -fx-spacing: 10;
+}
+
+.form-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-border-color: #e9ecef;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-padding: 24;
+    -fx-spacing: 16;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.07), 16, 0.12, 0, 4);
+}
+
+/* ====================================================
+   BUTTONS
+   ==================================================== */
+.primary-button {
+    -fx-background-color: #0f4c3a;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 999;
+    -fx-padding: 10 20 10 20;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+.primary-button:hover  { -fx-background-color: #0d3d2f; }
+.primary-button:pressed{ -fx-background-color: #0a2e23; }
+
+.secondary-button {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 999;
+    -fx-padding: 10 20 10 20;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+.secondary-button:hover { -fx-background-color: #dc2626; }
+
+.light-button {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #374151;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 999;
+    -fx-padding: 10 20 10 20;
+    -fx-cursor: hand;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+}
+
+.light-button:hover { -fx-background-color: #f9fafb; }
+
+/* Icon button trong table */
+.icon-button {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #374151;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 4 8 4 8;
+    -fx-cursor: hand;
+}
+
+.icon-button:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+.icon-button-danger:hover {
+    -fx-background-color: #fee2e2;
+    -fx-border-color: #fca5a5;
+    -fx-text-fill: #dc2626;
+}
+
+/* ====================================================
+   INPUTS
+   ==================================================== */
+.search-field,
+.text-field,
+.password-field,
+.input-field,
+.combo-box {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-text-fill: #111827;
+    -fx-prompt-text-fill: #9ca3af;
+    -fx-font-size: 14px;
+    -fx-pref-height: 42px;
+    -fx-padding: 0 12 0 12;
+}
+
+.search-field:focused,
+.text-field:focused,
+.password-field:focused,
+.input-field:focused,
+.combo-box:focused {
+    -fx-border-color: #0f4c3a;
+    -fx-background-color: #ffffff;
+}
+
+.date-picker {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.date-picker > .text-field {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12 0 0 12;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 12 0 0 12;
+    -fx-border-width: 1;
+    -fx-text-fill: #111827;
+    -fx-font-size: 14px;
+    -fx-pref-height: 42px;
+}
+
+.date-picker > .arrow-button {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 0 12 12 0;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 0 12 12 0;
+    -fx-border-width: 1;
+    -fx-pref-height: 42px;
+}
+
+.date-picker:focused > .text-field,
+.date-picker:focused > .arrow-button {
+    -fx-border-color: #0f4c3a;
+}
+
+.filter-bar {
+    -fx-spacing: 10;
+    -fx-padding: 4 0 8 0;
+}
+
+/* ====================================================
+   STATUS CHIPS (ToggleButton)
+   ==================================================== */
+.status-chip {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 10;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 8 14 8 14;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+}
+
+.status-chip:selected,
+.chip-green:selected {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+    -fx-border-color: #6ee7b7;
+}
+
+.chip-blue:selected {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1d4ed8;
+    -fx-border-color: #93c5fd;
+}
+
+.chip-amber:selected {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #92400e;
+    -fx-border-color: #fcd34d;
+}
+
+.chip-red:selected {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+    -fx-border-color: #fca5a5;
+}
+
+/* Filter chip (pill) */
+.filter-chip {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 999;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+    -fx-padding: 5 14 5 14;
+    -fx-cursor: hand;
+}
+
+.filter-chip:selected {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+    -fx-border-color: #6ee7b7;
+    -fx-font-weight: 700;
+}
+
+.filter-chip:hover:!selected {
+    -fx-background-color: #f3f4f6;
+}
+
+/* ====================================================
+   TABLE
+   ==================================================== */
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-border-color: #e9ecef;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-padding: 6;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.06), 14, 0.10, 0, 3);
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 12 12 0 0;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #e9ecef transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #374151;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-padding: 10 0 10 0;
+}
+
+.table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #f3f4f6 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cell-size: 44px;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #f9fafb;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #d1fae5;
+}
+
+.table-row-cell:selected .text {
+    -fx-fill: #065f46;
+}
+
+/* ====================================================
+   STATUS BADGE
+   ==================================================== */
+.status-badge {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 999;
+    -fx-padding: 4 12 4 12;
+    -fx-alignment: center;
+}
+
+.badge-green  { -fx-background-color: #d1fae5; -fx-text-fill: #065f46; }
+.badge-blue   { -fx-background-color: #dbeafe; -fx-text-fill: #1d4ed8; }
+.badge-amber  { -fx-background-color: #fef3c7; -fx-text-fill: #92400e; }
+.badge-red    { -fx-background-color: #fee2e2; -fx-text-fill: #991b1b; }
+.badge-purple { -fx-background-color: #ede9fe; -fx-text-fill: #6d28d9; }
+.badge-teal   { -fx-background-color: #ccfbf1; -fx-text-fill: #0f766e; }
+
+/* Đặt sân status */
+.status-pending   { -fx-background-color: #fef3c7; -fx-text-fill: #92400e;  -fx-font-size: 12px; -fx-font-weight: 700; -fx-background-radius: 999; -fx-padding: 4 12 4 12; }
+.status-confirmed { -fx-background-color: #dbeafe; -fx-text-fill: #1d4ed8;  -fx-font-size: 12px; -fx-font-weight: 700; -fx-background-radius: 999; -fx-padding: 4 12 4 12; }
+.status-checkin   { -fx-background-color: #ccfbf1; -fx-text-fill: #0f766e;  -fx-font-size: 12px; -fx-font-weight: 700; -fx-background-radius: 999; -fx-padding: 4 12 4 12; }
+.status-completed { -fx-background-color: #d1fae5; -fx-text-fill: #065f46;  -fx-font-size: 12px; -fx-font-weight: 700; -fx-background-radius: 999; -fx-padding: 4 12 4 12; }
+.status-cancelled { -fx-background-color: #fee2e2; -fx-text-fill: #991b1b;  -fx-font-size: 12px; -fx-font-weight: 700; -fx-background-radius: 999; -fx-padding: 4 12 4 12; }
+.status-default   { -fx-background-color: #f3f4f6; -fx-text-fill: #374151;  -fx-font-size: 12px; -fx-font-weight: 700; -fx-background-radius: 999; -fx-padding: 4 12 4 12; }
+
+/* Tag loại */
+.type-tag {
+    -fx-background-color: #f0fdf4;
+    -fx-text-fill: #166534;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 8;
+    -fx-padding: 3 10 3 10;
+}
+
+.ql-loai-tag {
+    -fx-background-color: #f0fdf4;
+    -fx-text-fill: #166534;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 8;
+    -fx-padding: 3 10 3 10;
+}
+
+/* ====================================================
+   FORM
+   ==================================================== */
+.form-grid {
+    -fx-hgap: 12;
+    -fx-vgap: 12;
+}
+
+.form-label {
+    -fx-text-fill: #111827;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+.field-label {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+/* ====================================================
+   TEXT UTILITIES
+   ==================================================== */
+.text-link {
+    -fx-text-fill: #0f4c3a;
+    -fx-font-size: 13px;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.text-link:hover { -fx-underline: true; }
+
+.muted-text {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 13px;
+}
+
+.error-text {
+    -fx-text-fill: #dc2626;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+/* ====================================================
+   SCROLL
+   ==================================================== */
+.content-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-fit-to-width: true;
+}
+
+.content-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.content-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.content-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(15, 76, 58, 0.20);
+    -fx-background-radius: 999;
+}
+
+/* ====================================================
+   TIME COMBO BOX
+   ==================================================== */
+.time-combo-box {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-pref-height: 42px;
+}
+
+.time-combo-box > .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #111827;
+    -fx-font-size: 14px;
+    -fx-padding: 0 12 0 12;
+}
+
+.time-combo-box > .text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #111827;
+    -fx-font-size: 14px;
+    -fx-padding: 0 12 0 12;
+    -fx-pref-height: 40px;
+}
+
+.time-combo-box > .arrow-button {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 0 12 12 0;
+    -fx-border-color: transparent;
+    -fx-pref-width: 44px;
+    -fx-pref-height: 40px;
+}
+
+.time-combo-box > .arrow-button > .arrow {
+    -fx-background-color: #4b5563;
+}
+
+.time-combo-box:focused {
+    -fx-border-color: #0f4c3a;
+}
+
+.filter-bar {
+    -fx-padding: 4px 0 18px 0;
+}
+
+.filter-label {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #374151;
+}
+
+.filter-bar .text-field,
+.filter-bar .combo-box,
+.filter-bar .date-picker {
+    -fx-background-color: white;
+    -fx-background-radius: 14px;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 14px;
+    -fx-border-width: 1px;
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.filter-bar .text-field:focused,
+.filter-bar .combo-box:focused,
+.filter-bar .date-picker:focused {
+    -fx-border-color: #0f513f;
+    -fx-border-width: 1.5px;
+}
